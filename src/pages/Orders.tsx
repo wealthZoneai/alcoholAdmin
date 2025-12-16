@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Package,
@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../Redux/store";
 import toast from "react-hot-toast";
 import ReviewModal, { type ReviewData } from "../components/ReviewModal";
-import { getCurrentOrder, getAllOrders, submitReview } from "../services/apiHelpers";
+import { getCurrentOrder, getAllOrders, submitReview, getAllOrderList } from "../services/apiHelpers";
 
 interface OrderItem {
     id: number;
@@ -48,6 +48,7 @@ const Orders: React.FC = () => {
     const [activeTab, setActiveTab] = useState<"ongoing" | "history">("ongoing");
     const [reviewModalOpen, setReviewModalOpen] = useState(false);
     const [selectedItemForReview, setSelectedItemForReview] = useState<OrderItem | null>(null);
+    const [adminOrdersList, setAdminOrdersList] = useState<[]>([]);
 
     const userId = useSelector((state: RootState) => state.user.userId);
 
@@ -139,6 +140,25 @@ const Orders: React.FC = () => {
         };
 
         fetchOrders();
+    }, [userId]);
+
+
+    useEffect(() => {
+        const adminFetchOrders = async () => {
+            setLoading(true);
+            try {
+                const allOrdersRes = await getAllOrderList();
+                const allData = allOrdersRes.data;
+                setAdminOrdersList(allData);
+            }
+            catch (error) {
+                console.error("Error fetching admin orders:", error);
+                toast.error("Failed to load orders");
+            } finally {
+                setLoading(false);
+            }
+        };
+        adminFetchOrders();
     }, [userId]);
 
 

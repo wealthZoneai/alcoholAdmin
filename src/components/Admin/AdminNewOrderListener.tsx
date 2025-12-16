@@ -53,7 +53,7 @@ const AdminNewOrderListener: React.FC = () => {
         };
 
         // Initial fetch
-        fetchNewOrders();
+        // fetchNewOrders();
 
         // Start polling
         const intervalId = setInterval(fetchNewOrders, POLLING_INTERVAL);

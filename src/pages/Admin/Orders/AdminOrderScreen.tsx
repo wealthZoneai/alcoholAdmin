@@ -5,7 +5,7 @@ import {
     DollarSign, Users, Activity, MapPin, MoreVertical, Search, ArrowRight, XCircle, Phone
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { getOrdersByStatus, updateOrderStatus } from "../../../services/apiHelpers";
+import { getAllOrderList, getOrdersByStatus, updateOrderStatus } from "../../../services/apiHelpers";
 
 type OrderStatus = "PLACED" | "PREPARING" | "READY" | "ASSIGNED" | "PICKUP" | "OUT_FOR_DELIVERY" | "DELIVERED";
 
@@ -24,6 +24,18 @@ interface TabConfig {
     shadowColor: string;
 }
 
+interface AdminOrdersList {
+    liveOrders: number;
+    earnings: {
+        week: number;
+        month: number;
+        year: number;
+        today: number;
+    };
+    newCustomers: number;
+    pendingDeliveries: number;
+}
+
 const TABS: TabConfig[] = [
     { id: "PLACED", label: "New", icon: <Package size={18} />, color: "text-blue-600 bg-blue-50", borderColor: "border-blue-200", shadowColor: "shadow-blue-100" },
     { id: "PREPARING", label: "Preparing", icon: <ChefHat size={18} />, color: "text-orange-600 bg-orange-50", borderColor: "border-orange-200", shadowColor: "shadow-orange-100" },
@@ -40,6 +52,12 @@ const AdminOrderScreen: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [orderCounts, setOrderCounts] = useState<Record<OrderStatus, number>>({ 'PLACED': 0, 'PREPARING': 0, 'READY': 0, 'ASSIGNED': 0, 'PICKUP': 0, 'OUT_FOR_DELIVERY': 0, 'DELIVERED': 0 });
+    const [adminOrdersList, setAdminOrdersList] = useState<AdminOrdersList>({
+        liveOrders: 0,
+        earnings: { week: 0, month: 0, year: 0, today: 0 },
+        newCustomers: 0,
+        pendingDeliveries: 0
+    });
 
     const fetchOrders = useCallback(async (status: OrderStatus) => {
         setLoading(true);
@@ -95,10 +113,29 @@ const AdminOrderScreen: React.FC = () => {
 
     useEffect(() => { fetchOrders(activeTab); fetchOrderCounts(); }, [activeTab, fetchOrders, fetchOrderCounts]);
 
+    useEffect(() => {
+        const adminFetchOrders = async () => {
+            try {
+                const allOrdersRes = await getAllOrderList();
+                const allData = allOrdersRes.data; 
+                if (allData) setAdminOrdersList(allData);
+            }
+            catch (error) {
+                console.error("Error fetching admin orders:", error);
+            }
+        };
+        adminFetchOrders();
+    }, [activeTab,orderCounts]);
+
     const filteredOrders = useMemo(() => {
         if (!searchQuery) return orders;
-        const q = searchQuery.toLowerCase();
-        return orders.filter(o => o.customerName?.toLowerCase().includes(q) || o.orderNumber.toLowerCase().includes(q) || o.id.toLowerCase().includes(q));
+        const lowerQuery = searchQuery.toLowerCase();
+        return orders.filter(
+            (o) =>
+                o.orderNumber.toLowerCase().includes(lowerQuery) ||
+                o.customerName?.toLowerCase().includes(lowerQuery) ||
+                o.id.toString().includes(lowerQuery)
+        );
     }, [orders, searchQuery]);
 
     const activeTabData = TABS.find(t => t.id === activeTab);
@@ -108,10 +145,10 @@ const AdminOrderScreen: React.FC = () => {
             {/* Stats Bar */}
             <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 mb-6 mt-4">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatCard icon={<Activity size={20} />} label="Live Orders" value={filteredOrders.length.toString()} color="text-red-500 bg-red-50" />
-                    <StatCard icon={<DollarSign size={20} />} label="Today's Revenue" value="₹45,230" color="text-green-600 bg-green-50" />
-                    <StatCard icon={<Users size={20} />} label="New Customers" value="128" color="text-blue-600 bg-blue-50" />
-                    <StatCard icon={<Truck size={20} />} label="Pending Delivery" value="12" color="text-orange-500 bg-orange-50" />
+                    <StatCard icon={<Activity size={20} />} label="Live Orders" value={adminOrdersList.liveOrders} color="text-red-500 bg-red-50" />
+                    <StatCard icon={<DollarSign size={20} />} label="Today's Revenue" value={`₹${adminOrdersList.earnings?.today || 0}`} color="text-green-600 bg-green-50" />
+                    <StatCard icon={<Users size={20} />} label="New Customers" value={adminOrdersList.newCustomers} color="text-blue-600 bg-blue-50" />
+                    <StatCard icon={<Truck size={20} />} label="Pending Delivery" value={adminOrdersList.pendingDeliveries} color="text-orange-500 bg-orange-50" />
                 </div>
             </div>
 

@@ -51,6 +51,9 @@ const endpoints = {
     // Ratings Status
     getRatingsStatus: 'api/profile/userstatus?userId=',
 
+    // Admin Specific Endpoints
+    getAllOrderList: 'api/admin/dashboard',
+
     // Home Screen Sections
     getHomeBanner: 'api/home/banner',
     updateHomeBanner: 'api/home/banner',

@@ -423,3 +423,9 @@ export function confirmOrder(userId: any, sessionId: string) {
   const body = { userId, sessionId };
   return server.post(endpoints.confirmOrder, body, { requiresAuth: true });
 }
+
+
+// Admin Specific Endpoints
+export function getAllOrderList() {
+  return server.get(endpoints.getAllOrderList, { requiresAuth: true });
+}
