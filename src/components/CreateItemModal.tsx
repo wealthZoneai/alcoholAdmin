@@ -16,6 +16,7 @@ import {
 import * as XLSX from "xlsx";
 import InputGroup from "./InputGroup";
 import InputMini from "./InputMini";
+import toast from "react-hot-toast";
 
 interface CreateItemModalProps {
   isOpen: boolean;
@@ -80,6 +81,18 @@ export default function CreateItemModal({
 
     if (type === "checkbox") {
       setForm((p) => ({ ...p, [name]: (e.target as HTMLInputElement).checked }));
+      return;
+    }
+
+    // Smart Defaults for Unit Type
+    if (name === "unitType") {
+      const isDecimal = ["KILOGRAM", "LITRE", "GRAM", "MILLILITRE", "KG", "L", "ML"].includes(value.toUpperCase());
+      setForm((p) => ({
+        ...p,
+        [name]: value,
+        minValue: p.minValue ? p.minValue : (isDecimal ? "0.5" : "1"),
+        // Reset step if we were to use it, but keeping it simple for now
+      }));
       return;
     }
 
@@ -157,10 +170,34 @@ export default function CreateItemModal({
     e.preventDefault();
     if (!form.name.trim()) return alert("Name is required");
     if (!form.price || Number(form.price) <= 0)
-      return alert("Price must be greater than 0");
+      return toast("Price must be greater than 0");
+
+    // NEW VARIATIONS
+    if (form.stock && Number(form.stock) < 0)
+      return toast("Stock cannot be negative");
+
+    // Validation: Min/Max vs Stock
+    if (form.stock && form.minValue && Number(form.minValue) > Number(form.stock)) {
+      return toast.error("Min Value cannot be greater than Stock Quantity");
+    }
+    if (form.stock && form.maxValue && Number(form.maxValue) > Number(form.stock)) {
+      return toast.error("Max Value cannot be greater than Stock Quantity");
+    }
+
+    if (form.minValue && form.maxValue && Number(form.minValue) > Number(form.maxValue))
+      return toast("Min Value cannot be greater than Max Value");
 
     onSubmit(form);
     onClose();
+  };
+
+  // Helper for dynamic step
+  const getStepValue = () => {
+    const decimalUnits = ["KILOGRAM", "LITRE", "KG", "L"];
+    if (decimalUnits.includes(form.unitType.toUpperCase())) {
+      return "0.01"; // Allow decimals
+    }
+    return "1"; // Default to integer
   };
 
   if (!isOpen) return null;
@@ -422,7 +459,7 @@ export default function CreateItemModal({
                     value={form.minValue}
                     onChange={handleChange}
                     placeholder="0.5"
-                    step="0.1"
+                    step={getStepValue()}
                   />
 
                   <InputMini
@@ -432,7 +469,7 @@ export default function CreateItemModal({
                     value={form.maxValue}
                     onChange={handleChange}
                     placeholder="25"
-                    step="0.1"
+                    step={getStepValue()}
                   />
 
                   {/* <InputMini

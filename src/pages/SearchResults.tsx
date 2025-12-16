@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, ShoppingCart, Heart } from "lucide-react";
-import {  useSelector } from "react-redux";
+import { Search } from "lucide-react";
+import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
-import { searchItems, AddToCart, setFavoriteItem } from "../services/apiHelpers";
+import { searchItems } from "../services/apiHelpers";
 import type { RootState } from "../Redux/store";
+import SubItemCard from "./SubCategory/SubItemCard";
 
 interface Product {
     id: number;
@@ -16,7 +17,11 @@ interface Product {
     imageUrl?: string;
     description?: string;
     isFavorite?: boolean;
-    category?: string; // Optional if API doesn't return it
+    category?: string;
+    stock?: number;
+    minValue?: number;
+    maxValue?: number;
+    unitType?: string;
 }
 
 const SearchResults: React.FC = () => {
@@ -38,21 +43,24 @@ const SearchResults: React.FC = () => {
             try {
                 const response = await searchItems(query);
                 if (response.data) {
-                    // Normalize data if necessary (e.g. image vs imageUrl)
+                    // Normalize data
                     const mappedProducts = response.data.map((item: any) => ({
                         ...item,
-                        // Ensure we use the correct image field. API mock shows 'imageUrl' or 'images' in previous contexts.
-                        // The screenshot shows "imageUrl" in the response body.
+                        // Ensure we use the correct image field.
                         imageUrl: item.imageUrl || item.image || "https://via.placeholder.com/400",
                         // Ensure category exists or default
-                        category: item.category || "General"
+                        category: item.category || "General",
+                        stock: item.stock !== undefined ? item.stock : 0, // Default to 0 if undefined to show out of stock? Or maybe 10? assuming 0 for safety.
+                        minValue: item.minValue,
+                        maxValue: item.maxValue,
+                        unitType: item.unitType
                     }));
                     setProducts(mappedProducts);
                 } else {
                     setProducts([]);
                 }
             } catch (error) {
-            toast.error("Failed to fetch search results.");
+                toast.error("Failed to fetch search results.");
                 setProducts([]);
             } finally {
                 setLoading(false);
@@ -61,8 +69,6 @@ const SearchResults: React.FC = () => {
 
         fetchSearchResults();
     }, [query]);
-
-  
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -119,42 +125,22 @@ const SearchResults: React.FC = () => {
                             <motion.div
                                 key={product.id}
                                 variants={itemVariants}
-                                whileHover={{ y: -8 }}
-                                className="bg-white rounded-2xl shadow-md overflow-hidden group cursor-pointer transition-shadow hover:shadow-xl"
-                                onClick={() => navigate(`/product/${product.id}`)}
+                            // layoutId={`product-${product.id}`} // Optional: for smooth weak layout transitions
                             >
-                                {/* Product Image */}
-                                <div className="relative h-56 overflow-hidden bg-gray-100">
-                                    <img
-                                        src={product.imageUrl}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                    />
-                                    {/* Category Badge - Optional, shown if available */}
-                                    {product.category && (
-                                        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-700">
-                                            {product.category}
-                                        </div>
-                                    )}
-                                    {/* Quick Actions */}
-                                 
-                                </div>
-
-                                {/* Product Info */}
-                                <div className="p-4">
-                                    <h3 className="font-bold text-gray-900 text-lg mb-1 line-clamp-1">
-                                        {product.name}
-                                    </h3>
-                                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                                        {product.description}
-                                    </p>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-2xl font-bold text-green-600">
-                                            ${product.price.toFixed(2)}
-                                        </span>
-                                       
-                                    </div>
-                                </div>
+                                <SubItemCard
+                                    id={product.id}
+                                    name={product.name}
+                                    price={product.price}
+                                    image={product.imageUrl || ""}
+                                    discount={product.discount}
+                                    rating={product.rating}
+                                    category={product.category || "General"}
+                                    minValue={product.minValue}
+                                    maxValue={product.maxValue}
+                                    // stock={product.stock}
+                                    unitType={product.unitType}
+                                    onViewDetails={() => navigate(`/product/${product.id}`)}
+                                />
                             </motion.div>
                         ))}
                     </motion.div>
