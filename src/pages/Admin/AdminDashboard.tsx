@@ -42,7 +42,7 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         if (role !== "ADMIN") {
-            navigate("/home");
+            navigate("/admin-dashboard");
             return;
         }
         fetchStats();
@@ -121,8 +121,9 @@ const AdminDashboard = () => {
             color: "from-violet-500 to-purple-500",
             lightColor: "bg-purple-50 text-purple-600",
             icon: <TrendingUp className="text-white" />,
-            items: [
+            items: [  
                 { label: "Banners", path: "/admin/banners", icon: <ImageIcon size={20} /> },
+                 { label: "combos", path: "/admin/combos", icon: <ImageIcon size={20} /> },
                 { label: "Offers & Coupons", path: "/admin/marketing", icon: <Gift size={20} /> },
                 { label: "Push Notifications", path: "/admin/notifications", icon: <Bell size={20} /> },
                 { label: "Customer Reviews", path: "/admin/reviews", icon: <MessageSquare size={20} /> },

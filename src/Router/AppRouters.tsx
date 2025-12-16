@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import Layout from "../pages/Layout";
-import Home from "../pages/HomeScreen/Home";
+// import Home from "../pages/HomeScreen/Home";
 import CategoryPage from "../pages/SubCategory/SubCategoryPage";
 import CategoryItems from "../pages/SubCategory/SubCategoryItems";
 import ScrollToTop from "../components/ScrollToTop";
@@ -29,6 +29,7 @@ import PublicRoute from "../utils/PublicRoute";
 import AdminAddItem from "../pages/Admin/Catalog/AdminAddItem";
 import AdminCategories from "../pages/Admin/Catalog/AdminCategories";
 import AdminSubCategories from "../pages/Admin/Catalog/AdminSubCategories";
+import PushNotification from "../pages/Admin/Marketing/PushNotification";
 
 
 const AppRouters = () => {
@@ -44,7 +45,7 @@ const AppRouters = () => {
             </PrivateRoute>
           }
         >
-          {/* <Route path="/home" element={<Home />} /> */}
+          {/* <Route path="/" element={<Login />} /> */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/search" element={<SearchResults />} />
 
@@ -70,6 +71,7 @@ const AppRouters = () => {
           <Route path="/admin/inventory" element={<AdminInventory />} />
           <Route path="/admin/staff" element={<AdminStaff />} />
           <Route path="/admin/banners" element={<AdminBanners />} />
+           <Route path="/admin/notifications" element={<PushNotification />} />
           <Route path="/admin/brands" element={<AdminBrands />} />
           <Route path="/admin/combos" element={<AdminCombos />} />
           <Route path="/admin/top-rated" element={<AdminTopRated />} />

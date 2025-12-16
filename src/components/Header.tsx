@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ onSearchChange }) => {
       setShowSearch(false);
     } else if (value.trim().length === 0) {
       setShowSearch(true);
-      navigate("/home");
+      navigate("/admin-dashboard");
     }
   };
 
@@ -64,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ onSearchChange }) => {
     if (onSearchChange) onSearchChange("");
 
     if (location.pathname === "/search") {
-      navigate("/home");
+      navigate("/admin-dashboard");
     }
   };
 

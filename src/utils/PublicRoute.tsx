@@ -12,7 +12,7 @@ const PublicRoute: React.FC<Props> = ({ children }) => {
   const token = localStorage.getItem("token");
 
   if (userId || token) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/admin-dashboard" replace />;
   }
 
   return <>{children}</>; // ✅ fragment wraps multiple children safely

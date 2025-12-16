@@ -10,127 +10,140 @@ import {
   FaClock,
 } from "react-icons/fa";
 
+/* ===================== CONFIG (EDIT EVERYTHING HERE) ===================== */
+
+const footerConfig = {
+  brand: {
+    name: "Benjour",
+    logo: "🍽️",
+    description:
+      "Delivering culinary excellence straight to your doorstep. Fresh ingredients, authentic flavors, and the joy of dining redefined.",
+  },
+
+  socialLinks: [
+    { icon: FaFacebook, url: "#" },
+    { icon: FaTwitter, url: "#" },
+    { icon: FaInstagram, url: "#" },
+    { icon: FaLinkedin, url: "#" },
+  ],
+
+  contact: {
+    address: "123 Gourmet Street, Foodie City, FC 12345",
+    phone: "+1 (234) 567-890",
+    email: "hello@benjour.com",
+    hours: "Mon–Sun: 8 AM – 11 PM",
+  },
+
+  newsletter: {
+    title: "Newsletter",
+    subtitle: "Join our foodie circle for exclusive offers & chef’s specials.",
+    placeholder: "Your email address",
+    buttonText: "Subscribe",
+  },
+
+  footerLinks: ["Privacy Policy", "Terms of Service", "Sitemap"],
+};
+
+/* ===================== COMPONENT ===================== */
+
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 text-white pt-14 pb-8 relative overflow-hidden">
-      {/* Background accent */}
+      {/* Background Accent */}
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_80%,_#34d399,_transparent_50%)]"></div>
 
-      <div className="relative z-10 container mx-auto px-5 sm:px-8">
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 mb-10 sm:mb-14">
-          {/* About */}
+      <div className="fle z-10 container mx-auto px-5 sm:px-8">
+        <div className="flex  gap-10 mb-14">
+
+          {/* BRAND */}
           <div className="space-y-4 text-center sm:text-left">
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-white flex justify-center sm:justify-start items-center">
-              <span className="bg-white text-emerald-600 p-2.5 rounded-xl mr-3 shadow-md">🍽️</span>
-              <span className="tracking-tight">Benjour</span>
+            <h3 className="text-3xl font-extrabold flex justify-center sm:justify-start items-center">
+              <span className="bg-white text-emerald-600 p-2.5 rounded-xl mr-3 shadow-md">
+                {footerConfig.brand.logo}
+              </span>
+              {footerConfig.brand.name}
             </h3>
-            <p className="text-emerald-100 leading-relaxed text-sm sm:text-base">
-              Delivering culinary excellence straight to your doorstep. Fresh ingredients,
-              authentic flavors, and the joy of dining redefined.
+
+            <p className="text-emerald-100 text-sm leading-relaxed">
+              {footerConfig.brand.description}
             </p>
+
             <div className="flex justify-center sm:justify-start space-x-3 pt-3">
-              {[FaFacebook, FaTwitter, FaInstagram, FaLinkedin].map((Icon, i) => (
+              {footerConfig.socialLinks.map((item, i) => (
                 <a
                   key={i}
-                  href="#"
-                  className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-all duration-300"
+                  href={item.url}
+                  className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition"
                 >
-                  <Icon size={18} className="text-emerald-200 hover:text-white" />
+                  <item.icon size={18} />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* CONTACT */}
           <div className="text-center sm:text-left">
-            <h4 className="text-lg font-semibold mb-5 sm:mb-6 pb-1 border-b border-emerald-700 inline-block">
-              Quick Links
-            </h4>
-            <ul className="space-y-2 sm:space-y-3">
-              {["Home", "Menu", "About Us", "Contact", "FAQ"].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="group flex justify-center sm:justify-start items-center text-emerald-100 hover:text-white transition-all duration-300"
-                  >
-                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2 sm:mr-3 group-hover:scale-125 transition-transform duration-300"></span>
-                    {item}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact Info */}
-          <div className="text-center sm:text-left">
-            <h4 className="text-lg font-semibold mb-5 sm:mb-6 pb-1 border-b border-emerald-700 inline-block">
+            <h4 className="text-lg font-semibold mb-5 border-b border-emerald-700 inline-block">
               Contact Us
             </h4>
-            <ul className="space-y-3 text-sm sm:text-base">
-              <li className="flex justify-center sm:justify-start items-start sm:items-center">
-                <FaMapMarkerAlt className="text-emerald-300 mt-1 mr-2 sm:mr-3 flex-shrink-0" />
-                <span className="text-emerald-100 max-w-[200px] sm:max-w-none">
-                  123 Gourmet Street, Foodie City, FC 12345
-                </span>
+
+            <ul className="space-y-3 text-sm">
+              <li className="flex justify-center sm:justify-start items-start">
+                <FaMapMarkerAlt className="mr-3 mt-1 text-emerald-300" />
+                {footerConfig.contact.address}
               </li>
               <li className="flex justify-center sm:justify-start items-center">
-                <FaPhone className="text-emerald-300 mr-2 sm:mr-3" />
-                <a href="tel:+1234567890" className="hover:text-white">
-                  +1 (234) 567-890
-                </a>
+                <FaPhone className="mr-3 text-emerald-300" />
+                {footerConfig.contact.phone}
               </li>
               <li className="flex justify-center sm:justify-start items-center">
-                <FaEnvelope className="text-emerald-300 mr-2 sm:mr-3" />
-                <a href="mailto:hello@benjour.com" className="hover:text-white">
-                  hello@benjour.com
-                </a>
+                <FaEnvelope className="mr-3 text-emerald-300" />
+                {footerConfig.contact.email}
               </li>
               <li className="flex justify-center sm:justify-start items-center">
-                <FaClock className="text-emerald-300 mr-2 sm:mr-3" />
-                <span>Mon–Sun: 8 AM – 11 PM</span>
+                <FaClock className="mr-3 text-emerald-300" />
+                {footerConfig.contact.hours}
               </li>
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* NEWSLETTER */}
           <div className="text-center sm:text-left">
-            <h4 className="text-lg font-semibold mb-5 sm:mb-6 pb-1 border-b border-emerald-700 inline-block">
-              Newsletter
+            <h4 className="text-lg font-semibold mb-5 border-b border-emerald-700 inline-block">
+              {footerConfig.newsletter.title}
             </h4>
-            <p className="text-emerald-100 mb-3 sm:mb-4 text-sm sm:text-base">
-              Join our foodie circle for exclusive offers & chef’s specials.
+
+            <p className="text-sm text-emerald-100 mb-4">
+              {footerConfig.newsletter.subtitle}
             </p>
+
             <form className="space-y-3">
               <input
                 type="email"
-                placeholder="Your email address"
-                className="w-full px-4 py-2 sm:py-3 rounded-lg bg-emerald-950 border border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-white placeholder-emerald-300 text-sm sm:text-base"
-                required
+                placeholder={footerConfig.newsletter.placeholder}
+                className="w-full px-4 py-3 rounded-lg bg-emerald-950 border border-emerald-700 focus:ring-2 focus:ring-emerald-400 outline-none"
               />
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-emerald-400 to-emerald-500 text-emerald-950 hover:from-emerald-300 hover:to-emerald-400 font-semibold py-2.5 sm:py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 text-sm sm:text-base"
-              >
-                Subscribe
+              <button className="w-full bg-emerald-400 text-emerald-950 font-semibold py-3 rounded-lg hover:bg-emerald-300 transition">
+                {footerConfig.newsletter.buttonText}
               </button>
             </form>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-emerald-800 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-          <p className="text-emerald-300 text-xs sm:text-sm tracking-wide">
-            &copy; {currentYear} <span className="font-semibold text-white">Benjour</span>. All rights reserved.
+        {/* BOTTOM */}
+        <div className="border-t border-emerald-800 pt-6 flex flex-col md:flex-row justify-between items-center text-sm">
+          <p className="text-emerald-300">
+            © {currentYear} <span className="text-white font-semibold">{footerConfig.brand.name}</span>. All rights reserved.
           </p>
-          <div className="flex flex-wrap justify-center md:justify-end space-x-4 sm:space-x-6 mt-3 md:mt-0 text-xs sm:text-sm">
-            {["Privacy Policy", "Terms of Service", "Sitemap"].map((item) => (
+
+          <div className="flex space-x-5 mt-3 md:mt-0">
+            {footerConfig.footerLinks.map((item) => (
               <a
                 key={item}
                 href="#"
-                className="text-emerald-300 hover:text-white transition-all duration-300 hover:underline underline-offset-4"
+                className="text-emerald-300 hover:text-white underline-offset-4 hover:underline"
               >
                 {item}
               </a>
