@@ -32,6 +32,7 @@ import AdminAddItem from "../pages/Admin/Catalog/AdminAddItem";
 import AdminCategories from "../pages/Admin/Catalog/AdminCategories";
 import AdminSubCategories from "../pages/Admin/Catalog/AdminSubCategories";
 import PushNotification from "../pages/Admin/Marketing/PushNotification";
+import AdminCustomers from "../pages/Admin/AdminCustomers";
 
 
 const AppRouters = () => {
@@ -82,6 +83,8 @@ const AppRouters = () => {
 
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+                    <Route path="/admin/Customers" element={<AdminCustomers />} />
+
         </Route>
 
         {/* ---------------------- PUBLIC ROUTES ---------------------- */}
