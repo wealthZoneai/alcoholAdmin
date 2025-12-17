@@ -153,26 +153,56 @@ const AdminOrderScreen: React.FC = () => {
             </div>
 
             {/* Header & Tabs */}
-            <div className="w-full bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 md:top-16 z-30 shadow-sm">
-                <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Tab Scroll Container */}
-                    <div className="flex overflow-x-auto pb-0 hide-scrollbar pt-2 gap-2">
-                        {TABS.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`relative flex items-center justify-center gap-2 px-5 py-3.5 rounded-t-2xl font-medium text-sm transition-all duration-200 min-w-max border-b-[3px]
-                                ${activeTab === tab.id ? `bg-white text-gray-900 border-red-500 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)]` : 'text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-700'}`}
-                            >
-                                <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${activeTab === tab.id ? tab.color : 'bg-gray-100 text-gray-500'}`}>
-                                    {orderCounts[tab.id] ?? 0}
-                                </span>
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
+<div className="w-full bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-30 shadow-sm">
+  <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex gap-3 overflow-x-auto hide-scrollbar py-2">
+      {TABS.map((tab) => {
+        const isActive = activeTab === tab.id;
+        const count = orderCounts[tab.id] ?? 0;
+
+        return (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`
+              relative flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold
+              border transition-all duration-300 whitespace-nowrap
+              ${isActive
+                ? `${tab.color} ${tab.borderColor} shadow-lg ${tab.shadowColor} scale-105`
+                : "bg-white text-gray-500 border-gray-200 hover:shadow-md hover:scale-105"
+              }
+            `}
+          >
+            {/* Active bottom indicator */}
+            {isActive && (
+              <span
+                className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full ${tab.color.split(" ")[1]}`}
+              />
+            )}
+
+            {/* Icon */}
+            {tab.icon}
+
+            {/* Label */}
+            <span className="whitespace-nowrap">{tab.label}</span>
+
+            {/* Order Count Badge */}
+            <span
+              className={`
+                ml-2 flex items-center justify-center min-w-[22px] h-[22px] px-2 rounded-full text-xs font-semibold
+                ${isActive ? tab.color : "bg-gray-100 text-gray-600"}
+              `}
+            >
+              {count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+
 
             {/* Main Content */}
             <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-6">

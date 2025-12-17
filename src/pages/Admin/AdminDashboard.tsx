@@ -113,6 +113,8 @@ const AdminDashboard = () => {
                 { label: "Sub-Categories", path: "/admin/sub-categories", icon: <Layers size={20} /> },
                 { label: "Food Inventory", subLabel: "Edit Items/Stock", path: "/admin/inventory", icon: <LayoutDashboard size={20} /> },
                 { label: "Top Rated", path: "/admin/top-rated", icon: <Star size={20} /> },
+                { label: "Items Inventory", subLabel: "Edit Items/Item", path: "/admin/Item-Inventory", icon: <LayoutDashboard size={20} /> },
+
             ]
         },
         {
@@ -121,9 +123,9 @@ const AdminDashboard = () => {
             color: "from-violet-500 to-purple-500",
             lightColor: "bg-purple-50 text-purple-600",
             icon: <TrendingUp className="text-white" />,
-            items: [  
+            items: [
                 { label: "Banners", path: "/admin/banners", icon: <ImageIcon size={20} /> },
-                 { label: "combos", path: "/admin/combos", icon: <ImageIcon size={20} /> },
+                { label: "combos", path: "/admin/combos", icon: <ImageIcon size={20} /> },
                 { label: "Offers & Coupons", path: "/admin/marketing", icon: <Gift size={20} /> },
                 { label: "Push Notifications", path: "/admin/notifications", icon: <Bell size={20} /> },
                 { label: "Customer Reviews", path: "/admin/reviews", icon: <MessageSquare size={20} /> },
@@ -186,7 +188,7 @@ const AdminDashboard = () => {
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        {/* <div className="flex items-center gap-3">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                                 <input
@@ -195,7 +197,7 @@ const AdminDashboard = () => {
                                     className="bg-white/10 border border-white/10 text-white placeholder:text-gray-500 pl-10 pr-4 py-2.5 rounded-xl outline-none focus:bg-white/20 transition-all w-64 backdrop-blur-sm"
                                 />
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
@@ -311,12 +313,12 @@ const AdminDashboard = () => {
                 </motion.div>
 
                 {/* Footer Message */}
-                <div className="mt-12 text-center pb-8 opacity-60">
+                {/* <div className="mt-12 text-center pb-8 opacity-60">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm text-xs font-bold text-gray-400 uppercase tracking-widest">
                         <Zap size={14} className="text-yellow-500 fill-yellow-500" />
                         Designed for Performance
                     </div>
-                </div>
+                </div> */}
 
             </div>
         </div>

@@ -21,6 +21,8 @@ import AdminBanners from "../pages/Admin/Marketing/AdminBanners";
 import AdminBrands from "../pages/Admin/Marketing/AdminBrands";
 import AdminCombos from "../pages/Admin/Marketing/AdminCombos";
 import AdminTopRated from "../pages/Admin/Catalog/AdminTopRated";
+import ItemInventory from "../pages/Admin/Catalog/ItemInventory";
+
 import AdminReviews from "../pages/Admin/Marketing/AdminReviews";
 import AdminSettings from "../pages/Admin/Settings/AdminSettings";
 
@@ -71,10 +73,13 @@ const AppRouters = () => {
           <Route path="/admin/inventory" element={<AdminInventory />} />
           <Route path="/admin/staff" element={<AdminStaff />} />
           <Route path="/admin/banners" element={<AdminBanners />} />
-           <Route path="/admin/notifications" element={<PushNotification />} />
+          <Route path="/admin/notifications" element={<PushNotification />} />
           <Route path="/admin/brands" element={<AdminBrands />} />
           <Route path="/admin/combos" element={<AdminCombos />} />
           <Route path="/admin/top-rated" element={<AdminTopRated />} />
+          <Route path="/admin/Item-Inventory" element={<ItemInventory />} />
+
+
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
         </Route>
