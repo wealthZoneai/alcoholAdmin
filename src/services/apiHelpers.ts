@@ -182,6 +182,11 @@ export function getSubcategoryItems(subcategoryId: string, page: number = 0, siz
   return server.get(`${endpoints.getSubcategoryItems}${subcategoryId}&page=${page}&size=${size}`, { requiresAuth: true });
 }
 
+// Get ALL items (global inventory)
+export function getAllItems(page: number, size: number) {
+  return server.get(`${endpoints.getAllItems}?page=${page}&size=${size}`, { requiresAuth: true });
+}
+
 // Create a new item under a subcategory
 export function createItem(subCategoryId: string, data: any) {
   const formData = new FormData();
@@ -339,9 +344,13 @@ export function createOrUpdateHomeBanner(
 
 
 
-export function getHomeBanner() {
-  return server.get(endpoints.homeBrands, { requiresAuth: true })
+export function getHomeBanner(section: string) {
+  return server.get(endpoints.homeBrands, {
+    params: { section },
+    requiresAuth: true
+  });
 }
+
 
 
 export function getHomeBrands() {

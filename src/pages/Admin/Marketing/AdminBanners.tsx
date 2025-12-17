@@ -79,7 +79,7 @@ const AdminBanners = () => {
 
     const fetchBanner = async () => {
         try {
-            const response = await getHomeBanner();
+            const response = await getHomeBanner("HOME_BANNER");
 
             if (response?.data) {
                 setBannerId(response.data[0].id);

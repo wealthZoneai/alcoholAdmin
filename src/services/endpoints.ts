@@ -27,6 +27,7 @@ const endpoints = {
     deleteSubcategory: 'api/subcategories/deleteCategory?id=',
 
     // Items under subcategories
+    getAllItems: 'api/items/all',
     getSubcategoryItems: 'api/items/getItemsBySubCategoryId?subCategoryId=',
     createItem: 'api/items/createItem?subCategoryId=',
     updateItem: 'api/items/updateItem?ItemId=',
@@ -53,13 +54,13 @@ const endpoints = {
 
     // Admin Specific Endpoints
     getAllOrderList: 'api/admin/dashboard',
-    
+
     getHomeCategories: 'api/home/categories',
     updateHomeCategories: 'api/home/categories',
 
 
     // Home Screen Sections
-    homeBrands: 'media',
+    homeBrands: 'media/getSection',
     addHomeBrands: 'media/upload',
     updateHomeBrands: 'media/updateById?id=',
 
