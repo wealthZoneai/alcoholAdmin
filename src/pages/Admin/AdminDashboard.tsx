@@ -111,7 +111,6 @@ const AdminDashboard = () => {
             items: [
                 { label: "Categories", path: "/admin/categories", icon: <Layers size={20} /> },
                 { label: "Sub-Categories", path: "/admin/sub-categories", icon: <Layers size={20} /> },
-                { label: "Items", path: "/admin/items", icon: <Layers size={20} /> },
                 
                 // { label: "Food Inventory", subLabel: "Edit Items/Stock", path: "/admin/inventory", icon: <LayoutDashboard size={20} /> },
                 { label: "Top Rated", path: "/admin/top-rated", icon: <Star size={20} /> },
