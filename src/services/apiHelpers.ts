@@ -309,18 +309,43 @@ export function submitReview(itemId: number, reviewData: ReviewData) {
 
 // Retings Status
 
-export const getRatingsStatus = (userId: string, orderId:string) => {
+export const getRatingsStatus = (userId: string, orderId: string) => {
   return server.get(`${endpoints.getRatingsStatus}${userId}&orderId=${orderId}`, { requiresAuth: true });
 }
 
 // Home Screen Helpers
-// Banner
-export function getHomeBanner() {
-  return server.get(endpoints.getHomeBanner);
+
+export function createOrUpdateHomeBanner(
+  data: FormData,
+  id?: string
+) {
+  if (id) {
+    // UPDATE
+    return server.put(
+      `${endpoints.updateHomeBrands}${id}`,
+      data,
+      { requiresAuth: true }
+    );
+  }
+
+  // CREATE
+  return server.post(
+    endpoints.addHomeBrands,
+    data,
+    { requiresAuth: true }
+  );
 }
 
-export function updateHomeBanner(data: any) {
-  return server.put(endpoints.updateHomeBanner, data, { requiresAuth: true });
+
+
+
+export function getHomeBanner() {
+  return server.get(endpoints.homeBrands, { requiresAuth: true })
+}
+
+
+export function getHomeBrands() {
+  return server.get(endpoints.homeBrands, { requiresAuth: true })
 }
 
 // Categories
@@ -333,9 +358,7 @@ export function updateHomeCategories(data: any) {
 }
 
 // Brands
-export function getHomeBrands() {
-  return server.get(endpoints.getHomeBrands);
-}
+
 
 export function updateHomeBrands(data: any) {
   return server.put(endpoints.updateHomeBrands, data, { requiresAuth: true });
