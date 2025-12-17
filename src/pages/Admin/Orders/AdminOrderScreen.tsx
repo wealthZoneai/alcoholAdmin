@@ -40,9 +40,9 @@ const TABS: TabConfig[] = [
     { id: "PLACED", label: "New", icon: <Package size={18} />, color: "text-blue-600 bg-blue-50", borderColor: "border-blue-200", shadowColor: "shadow-blue-100" },
     { id: "PREPARING", label: "Preparing", icon: <ChefHat size={18} />, color: "text-orange-600 bg-orange-50", borderColor: "border-orange-200", shadowColor: "shadow-orange-100" },
     { id: "READY", label: "Ready", icon: <CheckCircle size={18} />, color: "text-lime-600 bg-lime-50", borderColor: "border-lime-200", shadowColor: "shadow-lime-100" },
-    { id: "ASSIGNED", label: "Driver", icon: <Clock size={18} />, color: "text-indigo-600 bg-indigo-50", borderColor: "border-indigo-200", shadowColor: "shadow-indigo-100" },
+    { id: "ASSIGNED", label: "Assigned", icon: <Clock size={18} />, color: "text-indigo-600 bg-indigo-50", borderColor: "border-indigo-200", shadowColor: "shadow-indigo-100" },
     { id: "PICKUP", label: "Picked Up", icon: <ShoppingBag size={18} />, color: "text-purple-600 bg-purple-50", borderColor: "border-purple-200", shadowColor: "shadow-purple-100" },
-    { id: "OUT_FOR_DELIVERY", label: "Training", icon: <Truck size={18} />, color: "text-emerald-600 bg-emerald-50", borderColor: "border-emerald-200", shadowColor: "shadow-emerald-100" },
+    { id: "OUT_FOR_DELIVERY", label: "Out For Delivery", icon: <Truck size={18} />, color: "text-emerald-600 bg-emerald-50", borderColor: "border-emerald-200", shadowColor: "shadow-emerald-100" },
     { id: "DELIVERED", label: "Delivered", icon: <CheckCircle size={18} />, color: "text-green-700 bg-green-100", borderColor: "border-green-200", shadowColor: "shadow-green-100" },
 ];
 
@@ -64,14 +64,15 @@ const AdminOrderScreen: React.FC = () => {
         try {
             const response = await getOrdersByStatus(status);
             setOrders((Array.isArray(response.data) ? response.data : []).map((item: any) => ({
-                id: item.id?.toString(),
-                orderNumber: `ORD-${item.id}`,
+
+                id: item.orderId?.toString(),
+                orderNumber: `ORD-${item.orderCode.slice(-4)}`,
                 date: item.createdAt || new Date().toISOString(),
                 status,
                 totalAmount: item.totalAmount || 0,
                 deliveryAddress: item.address?.fullAddress || "Address not provided",
-                customerName: item.user?.name || "Unknown Customer",
-                customerPhone: item.user?.phone || "No Phone",
+                customerName: item?.username || "Unknown Customer",
+                customerPhone: item?.phone || "No Phone",
                 items: item.orderItems?.map((oi: any) => ({
                     id: oi.item?.id, name: oi.item?.name, quantity: oi.quantity, price: oi.priceAtPurchase || oi.item?.price, image: oi.item?.imageUrl
                 })) || []

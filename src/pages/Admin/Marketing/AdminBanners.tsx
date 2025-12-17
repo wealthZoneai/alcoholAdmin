@@ -1,42 +1,77 @@
 import React, { useState, useEffect, useRef } from "react";
-import { UploadCloud, Save, Play, Image as ImageIcon, Sparkles, Layout } from "lucide-react";
+import {
+    UploadCloud,
+    Save,
+    Play,
+    Image as ImageIcon,
+    Sparkles,
+    Layout
+} from "lucide-react";
 import { toast } from "react-hot-toast";
-import { getHomeBanner, updateHomeBanner } from "../../../services/apiHelpers";
+import { getHomeBanner, createOrUpdateHomeBanner } from "../../../services/apiHelpers";
 
-// Helper for video duration
+/* ================= TYPES ================= */
+
+interface BannerData {
+    title: string;
+    subtitle: string;
+    // description: string;
+    image: string;
+    video?: string;
+}
+
+/* ========== VIDEO DURATION HELPER ========== */
+
 const getVideoDuration = (file: File): Promise<string> => {
     return new Promise((resolve) => {
-        const video = document.createElement('video');
-        video.preload = 'metadata';
+        const video = document.createElement("video");
+        video.preload = "metadata";
         video.onloadedmetadata = function () {
             window.URL.revokeObjectURL(video.src);
             const duration = video.duration;
             const minutes = Math.floor(duration / 60);
             const seconds = Math.floor(duration % 60);
-            resolve(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-        }
+            resolve(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`);
+        };
         video.src = URL.createObjectURL(file);
     });
-}
+};
+
+/* ================= COMPONENT ================= */
 
 const AdminBanners = () => {
-    const [loading, setLoading] = useState(false);
-    const [initialLoading, setInitialLoading] = useState(true);
-    const [bannerData, setBannerData] = useState({
+    const defaultData: BannerData = {
         title: "",
         subtitle: "",
-        imageUrl: "",
-        videoUrl: ""
-    });
+        // description: "",
+        image: "",
+        video: ""
+    };
 
-    // File states
+    /* ========== STATES ========== */
+    const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [bannerData, setBannerData] = useState<BannerData>(defaultData);
+
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [videoFile, setVideoFile] = useState<File | null>(null);
-    const [previews, setPreviews] = useState({ image: "", video: "" });
-    const [videoMeta, setVideoMeta] = useState({ size: "", duration: "" });
+    const [bannerId, setBannerId] = useState<any | null>(null);
+
+
+    const [previews, setPreviews] = useState({
+        image: "",
+        video: ""
+    });
+
+    const [videoMeta, setVideoMeta] = useState({
+        size: "",
+        duration: ""
+    });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const videoInputRef = useRef<HTMLInputElement>(null);
+
+    /* ========== FETCH EXISTING BANNER ========== */
 
     useEffect(() => {
         fetchBanner();
@@ -45,61 +80,110 @@ const AdminBanners = () => {
     const fetchBanner = async () => {
         try {
             const response = await getHomeBanner();
-            if (response.data) {
-                setBannerData(response.data);
+
+            if (response?.data) {
+                setBannerId(response.data[0].id);
+                setBannerData({
+                    title: response.data.title || "",
+                    subtitle: response.data.description || "",
+                    image: response.data.image || "",
+                    video: response.data.video || ""
+                });
+
                 setPreviews({
-                    image: response.data.imageUrl || "",
-                    video: response.data.videoUrl || ""
+                    image: response.data.image || "",
+                    video: response.data.video || ""
                 });
             }
         } catch (error) {
-            console.error("Failed to load banner", error);
+            console.error("Error fetching banner:", error);
         } finally {
             setInitialLoading(false);
         }
     };
 
+
+    /* ========== IMAGE CHANGE ========== */
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setImageFile(file);
-            setPreviews(prev => ({ ...prev, image: URL.createObjectURL(file) }));
-        }
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setImageFile(file);
+        setPreviews((prev) => ({
+            ...prev,
+            image: URL.createObjectURL(file)
+        }));
     };
+
+    /* ========== VIDEO CHANGE ========== */
 
     const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setVideoFile(file);
-            setPreviews(prev => ({ ...prev, video: URL.createObjectURL(file) }));
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-            // Meta calculations
-            const size = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-            const duration = await getVideoDuration(file);
-            setVideoMeta({ size, duration });
-        }
+        setVideoFile(file);
+        setPreviews((prev) => ({
+            ...prev,
+            video: URL.createObjectURL(file)
+        }));
+
+        const size = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+        const duration = await getVideoDuration(file);
+
+        setVideoMeta({ size, duration });
     };
+
+    /* ========== SAVE / UPDATE BANNER ========== */
 
     const handleSave = async () => {
         setLoading(true);
         try {
             const formData = new FormData();
-            formData.append("title", bannerData.title);
-            formData.append("subtitle", bannerData.subtitle);
-            if (imageFile) formData.append("image", imageFile);
-            if (videoFile) formData.append("video", videoFile);
 
-            await updateHomeBanner(formData);
-            toast.success("Banner updated successfully!");
+            formData.append("section", "HOME_BANNER");
+            formData.append("orderIndex", "1");
+            formData.append("title", bannerData.title);
+            formData.append("description", bannerData.subtitle);
+
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+
+            if (videoFile) {
+                formData.append("video", videoFile);
+            }
+
+            const response = await createOrUpdateHomeBanner(
+                formData,
+                bannerId ?? undefined
+            );
+
+            if (response?.data) {
+                toast.success(
+                    bannerId
+                        ? "Home banner updated successfully"
+                        : "Home banner created successfully"
+                );
+
+                setBannerId(response.data.id);
+                setBannerData({
+                    title: response.data.title,
+                    subtitle: response.data.description,
+                    image: response.data.image,
+                    video: response.data.video
+                });
+            }
         } catch (error) {
-            toast.error("Failed to update banner.");
+            console.error("Error saving banner:", error);
+            toast.error("Failed to save banner");
         } finally {
             setLoading(false);
         }
     };
 
-    if (initialLoading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
 
+    /* ========== LOADING STATE ========== */
     return (
         <div className="min-h-screen bg-[#f8f9fc] pt-6 px-4 animate-fade-in">
             <div className="max-w-6xl mx-auto mb-8">
@@ -251,6 +335,7 @@ const AdminBanners = () => {
             </div>
         </div>
     );
-};
+
+}
 
 export default AdminBanners;

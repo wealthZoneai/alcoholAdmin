@@ -53,16 +53,15 @@ const endpoints = {
 
     // Admin Specific Endpoints
     getAllOrderList: 'api/admin/dashboard',
-
-    // Home Screen Sections
-    getHomeBanner: 'api/home/banner',
-    updateHomeBanner: 'api/home/banner',
-
+    
     getHomeCategories: 'api/home/categories',
     updateHomeCategories: 'api/home/categories',
 
-    getHomeBrands: 'api/home/brands',
-    updateHomeBrands: 'api/home/brands',
+
+    // Home Screen Sections
+    homeBrands: 'media',
+    addHomeBrands: 'media/upload',
+    updateHomeBrands: 'media/updateById?id=',
 
     getHomeCombos: 'api/home/combos',
     createHomeCombo: 'api/home/combos',
@@ -91,6 +90,10 @@ const endpoints = {
     createCheckoutSession: 'api/checkout/create-checkout-session',
     confirmOrder: 'api/checkout/confirm-order',
     getSessionStatus: 'api/checkout/session-status',
+
+    // Media
+    // uploadMedia: 'media/upload',
+
 }
 
 export default endpoints
