@@ -36,7 +36,7 @@ const HomeBanner: React.FC = () => {
 
   const fetchBanner = async () => {
     try {
-      const response = await getHomeBanner();
+      const response = await getHomeBanner('HOME_BANNER');
       if (response.data) {
         setBannerData(response.data);
       }

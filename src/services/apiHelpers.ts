@@ -461,3 +461,17 @@ export function confirmOrder(userId: any, sessionId: string) {
 export function getAllOrderList() {
   return server.get(endpoints.getAllOrderList, { requiresAuth: true });
 }
+
+// coupons
+export function getCoupens() {
+  return server.get(endpoints.getCoupens, { requiresAuth: true });
+}
+export function createCoupens(data: any) {
+  return server.post(endpoints.createCoupens, data, { requiresAuth: true });
+}
+export function updateCoupens(id: string, data: any) {
+  return server.put(`${endpoints.updateCoupens}/${id}`, data, { requiresAuth: true });
+}
+export function deleteCoupens(id: string) {
+  return server.delete(`${endpoints.deleteCoupens}/${id}`, { requiresAuth: true });
+}

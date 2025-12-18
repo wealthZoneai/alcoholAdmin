@@ -33,6 +33,7 @@ import AdminCategories from "../pages/Admin/Catalog/AdminCategories";
 import AdminSubCategories from "../pages/Admin/Catalog/AdminSubCategories";
 import PushNotification from "../pages/Admin/Marketing/PushNotification";
 import AdminCustomers from "../pages/Admin/AdminCustomers";
+import AdminTranstionHistory from "../pages/AdminTranstionHistory/AdminTranstionHistory";
 
 
 const AppRouters = () => {
@@ -79,8 +80,7 @@ const AppRouters = () => {
           <Route path="/admin/combos" element={<AdminCombos />} />
           <Route path="/admin/top-rated" element={<AdminTopRated />} />
           <Route path="/admin/Item-Inventory" element={<ItemInventory />} />
-
-
+          <Route path="/admin/transactions" element={<AdminTranstionHistory />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
                     <Route path="/admin/Customers" element={<AdminCustomers />} />

@@ -1,26 +1,71 @@
-import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Edit2, Loader2, Quote, Star } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Quote, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { motion, AnimatePresence } from "framer-motion";
-import { getHomeReviews, createHomeReview, updateHomeReview, deleteHomeReview } from "../../../services/apiHelpers";
+import { motion } from "framer-motion";
+import ReviewStats from "./components/ReviewStats";
+import ReviewToolbar from "./components/ReviewToolbar";
+import ReviewTable from "./components/ReviewTable";
+import type { Review } from "./components/ReviewRow";
+import { getHomeReviews, deleteHomeReview } from "../../../services/apiHelpers";
 
-interface Review {
-    id: number;
-    name: string;
-    location: string;
-    date: string;
-    text: string;
-    image: string;
-    rating: number;
-    verified: boolean;
-    helpful: number;
-}
+const DUMMY_REVIEWS: Review[] = [
+    {
+        id: 1,
+        name: "Aman Gupta",
+        location: "Mumbai, India",
+        date: "18 Dec 2025",
+        text: "The alcohol delivery was super fast! Perfectly chilled and well packaged. Best service in town.",
+        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aman",
+        rating: 5,
+        verified: true
+    },
+    {
+        id: 2,
+        name: "Sarah Williams",
+        location: "London, UK",
+        date: "17 Dec 2025",
+        text: "Great selection of premium groceries. The organic section is particularly impressive. Highly recommend!",
+        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+        rating: 5,
+        verified: true
+    },
+    {
+        id: 3,
+        name: "Vikram Rathore",
+        location: "Delhi, India",
+        date: "16 Dec 2025",
+        text: "Slight delay in delivery today, but the quality of items was top-notch as usual.",
+        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Vikram",
+        rating: 4,
+        verified: true
+    },
+    {
+        id: 4,
+        name: "Elena Rodriguez",
+        location: "Madrid, Spain",
+        date: "15 Dec 2025",
+        text: "Everything was fresh, but I wish they had more international wine options.",
+        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena",
+        rating: 3,
+        verified: false
+    },
+    {
+        id: 5,
+        name: "Rajesh Kumar",
+        location: "Bangalore, India",
+        date: "14 Dec 2025",
+        text: "Fantastic app experience! Very smooth checkout and great offers.",
+        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rajesh",
+        rating: 5,
+        verified: true
+    }
+];
 
 const AdminReviews = () => {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingItem, setEditingItem] = useState<Review | null>(null);
+    const [search, setSearch] = useState("");
+    const [activeRating, setActiveRating] = useState<number | "ALL">("ALL");
 
     useEffect(() => {
         fetchReviews();
@@ -29,233 +74,116 @@ const AdminReviews = () => {
     const fetchReviews = async () => {
         try {
             const response = await getHomeReviews();
-            if (response.data && Array.isArray(response.data)) {
+            if (response.data && Array.isArray(response.data) && response.data.length > 0) {
                 setReviews(response.data);
+            } else {
+                // Fallback to dummy data if API returns empty
+                setReviews(DUMMY_REVIEWS);
             }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to load reviews");
+            toast.error("Failed to load reviews. Using local data.");
+            setReviews(DUMMY_REVIEWS);
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (id: number) => {
-        if (!window.confirm("Delete this review?")) return;
+        if (!window.confirm("Are you sure you want to remove this review? This action cannot be undone.")) return;
+
+        const originalReviews = [...reviews];
+        setReviews(reviews.filter(r => r.id !== id));
+
         try {
             await deleteHomeReview(id.toString());
-            setReviews(reviews.filter(r => r.id !== id));
-            toast.success("Review deleted");
+            toast.success("Review permanently removed");
         } catch (error) {
-            toast.error("Failed to delete review");
+            console.error(error);
+            setReviews(originalReviews);
+            toast.error("Cloud removal failed. Restored review.");
         }
     };
 
-    return (
-        <div className="min-h-screen bg-[#f8f9fc] pt-20 px-4 animate-fade-in">
-            <div className="max-w-7xl mx-auto mb-8 flex justify-between items-center">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <Quote className="text-blue-600" size={24} />
-                        </div>
-                        <h1 className="text-2xl font-bold text-gray-900">Customer Reviews</h1>
-                    </div>
-                    <p className="text-gray-500 ml-12">Manage testimonials and customer feedback.</p>
+    const stats = useMemo(() => {
+        const total = reviews.length;
+        const avg = total > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / total).toFixed(1) : 0;
+        const verified = reviews.filter(r => r.verified).length;
+        const negative = reviews.filter(r => r.rating <= 2).length;
+
+        return {
+            total,
+            averageRating: parseFloat(avg.toString()),
+            verified,
+            negative
+        };
+    }, [reviews]);
+
+    const filteredReviews = useMemo(() => {
+        return reviews.filter(r => {
+            const matchesSearch = r.name.toLowerCase().includes(search.toLowerCase()) ||
+                r.text.toLowerCase().includes(search.toLowerCase());
+            const matchesRating = activeRating === "ALL" || r.rating === activeRating;
+            return matchesSearch && matchesRating;
+        });
+    }, [reviews, search, activeRating]);
+
+    const clearFilters = () => {
+        setSearch("");
+        setActiveRating("ALL");
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#f8f9fc]">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 size={40} className="animate-spin text-blue-600" />
+                    <p className="text-gray-500 font-bold animate-pulse">Syncing Testimonials...</p>
                 </div>
-                <button
-                    onClick={() => {
-                        setEditingItem(null);
-                        setIsModalOpen(true);
-                    }}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition-all hover:shadow-blue-200"
-                >
-                    <Plus size={20} />
-                    Add Review
-                </button>
             </div>
+        );
+    }
 
-            {loading ? (
-                <div className="flex justify-center items-center h-64">
-                    <Loader2 className="animate-spin text-blue-600" size={32} />
+    return (
+        <div className="min-h-screen bg-[#f8f9fc] pt-24 px-4 sm:px-8 pb-12">
+            <div className="max-w-7xl mx-auto">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="px-3 py-1 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full">Social Proof</span>
+                        </div>
+                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Reviews & Feedback</h1>
+                        <p className="text-gray-500 font-medium mt-1">Audit customer testimonials and maintain brand reputation.</p>
+                    </div>
                 </div>
-            ) : (
-                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {reviews.map((review) => (
-                        <motion.div
-                            key={review.id}
-                            layout
-                            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all"
-                        >
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <img src={review.image} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
-                                    <div>
-                                        <h3 className="font-bold text-gray-900">{review.name}</h3>
-                                        <p className="text-xs text-gray-500">{review.location} • {review.date}</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-1">
-                                    <button
-                                        onClick={() => { setEditingItem(review); setIsModalOpen(true); }}
-                                        className="p-1.5 hover:bg-gray-100 rounded text-blue-600"
-                                    >
-                                        <Edit2 size={16} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(review.id)}
-                                        className="p-1.5 hover:bg-gray-100 rounded text-red-600"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1 mb-3 text-yellow-500">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star key={i} size={14} className={i < review.rating ? "fill-current" : "text-gray-200"} />
-                                ))}
-                            </div>
-                            <p className="text-gray-600 text-sm italic line-clamp-3">"{review.text}"</p>
-                        </motion.div>
-                    ))}
-                </div>
-            )}
 
-            <ReviewModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                initialData={editingItem}
-                onSuccess={(newItem: Review) => {
-                    if (editingItem) {
-                        setReviews(reviews.map(r => r.id === newItem.id ? newItem : r));
-                        toast.success("Review updated");
-                    } else {
-                        setReviews([...reviews, newItem]);
-                        toast.success("Review added");
-                    }
-                    setIsModalOpen(false);
-                }}
-            />
+                <ReviewStats stats={stats} />
+
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden"
+                >
+                    <ReviewToolbar
+                        search={search}
+                        setSearch={setSearch}
+                        activeRating={activeRating}
+                        setActiveRating={setActiveRating}
+                    />
+
+                    <ReviewTable
+                        reviews={filteredReviews}
+                        totalFiltered={filteredReviews.length}
+                        totalItems={reviews.length}
+                        clearFilters={clearFilters}
+                        onDelete={handleDelete}
+                    />
+                </motion.div>
+            </div>
         </div>
     );
 };
 
-interface ModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    initialData: Review | null;
-    onSuccess: (item: Review) => void;
-}
-
-const ReviewModal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, onSuccess }) => {
-    // ... Simplified form for brevity, assuming standard CRUD ...
-    const [form, setForm] = useState({
-        name: "",
-        location: "",
-        text: "",
-        rating: 5,
-    });
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            if (initialData) {
-                setForm({
-                    name: initialData.name,
-                    location: initialData.location,
-                    text: initialData.text,
-                    rating: initialData.rating,
-                });
-            } else {
-                setForm({
-                    name: "",
-                    location: "",
-                    text: "",
-                    rating: 5,
-                });
-            }
-        }
-    }, [isOpen, initialData]);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        // Mocking API call for creating form data since there's no image upload in this simple version
-        try {
-            const formData = new FormData();
-            formData.append("name", form.name);
-            formData.append("location", form.location);
-            formData.append("text", form.text);
-            formData.append("rating", form.rating.toString());
-            // Add other fields as necessary or mocking
-
-            let response;
-            if (initialData) {
-                response = await updateHomeReview(initialData.id.toString(), formData);
-            } else {
-                response = await createHomeReview(formData);
-            }
-            if (response.data) onSuccess(response.data);
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to save");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl"
-                    >
-                        <h2 className="text-xl font-bold mb-4">{initialData ? "Edit Review" : "Add Review"}</h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <input
-                                placeholder="Customer Name"
-                                value={form.name}
-                                onChange={e => setForm({ ...form, name: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                                required
-                            />
-                            <input
-                                placeholder="Location"
-                                value={form.location}
-                                onChange={e => setForm({ ...form, location: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                                required
-                            />
-                            <textarea
-                                placeholder="Review Text"
-                                value={form.text}
-                                onChange={e => setForm({ ...form, text: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg h-24"
-                                required
-                            />
-                            <div className="flex items-center gap-2">
-                                <label>Rating:</label>
-                                <input
-                                    type="number"
-                                    max="5" min="1"
-                                    value={form.rating}
-                                    onChange={e => setForm({ ...form, rating: parseInt(e.target.value) })}
-                                    className="border rounded px-2 py-1 w-16"
-                                />
-                            </div>
-                            <div className="flex justify-end gap-2 pt-4">
-                                <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-100 rounded-lg">Cancel</button>
-                                <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded-lg">Save</button>
-                            </div>
-                        </form>
-                    </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
-    )
-}
-
 export default AdminReviews;
+

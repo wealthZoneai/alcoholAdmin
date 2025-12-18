@@ -95,6 +95,12 @@ const endpoints = {
     // Media
     // uploadMedia: 'media/upload',
 
+    // coupons
+    getCoupens: 'api/admin/coupons',
+    createCoupens: 'api/admin/coupons',
+    updateCoupens: 'api/admin/coupons',
+    deleteCoupens: 'api/admin/coupons',
+
 }
 
 export default endpoints

@@ -141,6 +141,7 @@ const AdminDashboard = () => {
             icon: <BarChart2 className="text-white" />,
             items: [
                 { label: "Sales Analytics", path: "/admin/analytics", icon: <TrendingUp size={20} /> },
+                { label: "Transactions", path: "/admin/transactions", icon: <TrendingUp size={20} /> },
                 { label: "Customers", path: "/admin/Customers", icon: <Users size={20} /> },
                 { label: "App Settings", path: "/admin/settings", icon: <Smartphone size={20} /> },
             ]
