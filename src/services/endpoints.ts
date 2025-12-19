@@ -101,6 +101,10 @@ const endpoints = {
     updateCoupens: 'api/admin/coupons',
     deleteCoupens: 'api/admin/coupons',
 
+
+    // AdminAnlyticsDashboard
+    getAnlyticsDashboard: 'api/admin/analytics',
+
 }
 
 export default endpoints

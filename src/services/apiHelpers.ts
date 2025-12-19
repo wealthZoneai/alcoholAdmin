@@ -475,3 +475,8 @@ export function updateCoupens(id: string, data: any) {
 export function deleteCoupens(id: string) {
   return server.delete(`${endpoints.deleteCoupens}/${id}`, { requiresAuth: true });
 }
+
+
+export function getAnlyticsDashboard(range: string) {
+  return server.get(`${endpoints.getAnlyticsDashboard}?range=${range}`, { requiresAuth: true });
+}
