@@ -1,7 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-    Clock, DollarSign, Globe, Lock, Mail, MapPin,
-    Save, Settings, Shield, Smartphone, Store, Truck, ToggleLeft, ToggleRight
+    DollarSign,
+    Globe,
+    Mail,
+    MapPin,
+    Save,
+    Settings,
+    Shield,
+    Store,
+    ToggleLeft,
+    ToggleRight
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -18,21 +26,35 @@ const AdminSettings = () => {
         taxRate: 18,
         deliveryFee: 40,
         freeDeliveryAbove: 500,
+
+        // 🌧 ADDED ONLY
+        rainyDeliveryEnabled: false,
+        rainyExtraFee: 20,
+
         isStoreOpen: true,
         acceptingOrders: true,
     });
 
     const handleSave = () => {
         setLoading(true);
-        // Simulate API call
         setTimeout(() => {
             setLoading(false);
             toast.success("Settings saved successfully!");
         }, 1000);
     };
 
-    const Toggle = ({ checked, onChange }: { checked: boolean, onChange: () => void }) => (
-        <button onClick={onChange} className={`transition-colors duration-200 ${checked ? 'text-emerald-500' : 'text-gray-300'}`}>
+    const Toggle = ({
+        checked,
+        onChange,
+    }: {
+        checked: boolean;
+        onChange: () => void;
+    }) => (
+        <button
+            onClick={onChange}
+            className={`transition-colors duration-200 ${checked ? "text-emerald-500" : "text-gray-300"
+                }`}
+        >
             {checked ? <ToggleRight size={40} /> : <ToggleLeft size={40} />}
         </button>
     );
@@ -47,8 +69,12 @@ const AdminSettings = () => {
                             <Settings size={24} />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">App Settings</h1>
-                            <p className="text-gray-500 text-sm">Configure your store, tax, and delivery preferences.</p>
+                            <h1 className="text-2xl font-bold text-gray-900">
+                                App Settings
+                            </h1>
+                            <p className="text-gray-500 text-sm">
+                                Configure your store, tax, and delivery preferences.
+                            </p>
                         </div>
                     </div>
                     <button
@@ -56,40 +82,64 @@ const AdminSettings = () => {
                         disabled={loading}
                         className="bg-gray-900 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-black transition-all shadow-lg active:scale-95 disabled:opacity-70"
                     >
-                        {loading ? <span className="animate-spin w-5 h-5 border-2 border-white/20 border-t-white rounded-full" /> : <Save size={18} />}
+                        {loading ? (
+                            <span className="animate-spin w-5 h-5 border-2 border-white/20 border-t-white rounded-full" />
+                        ) : (
+                            <Save size={18} />
+                        )}
                         Save Changes
                     </button>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column - Store & Operations */}
+                    {/* Left Column */}
                     <div className="lg:col-span-2 space-y-6">
-
-                        {/* Store Status Card */}
+                        {/* Store Status */}
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                             <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                 <Store size={18} className="text-purple-500" />
                                 Store Status
                             </h2>
+
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                     <div>
-                                        <p className="font-bold text-gray-900">Store Open</p>
-                                        <p className="text-sm text-gray-500">Temporarily close store for maintenance</p>
+                                        <p className="font-bold text-gray-900">
+                                            Store Open
+                                        </p>
+                                        <p className="text-sm text-gray-500">
+                                            Temporarily close store for maintenance
+                                        </p>
                                     </div>
                                     <Toggle
                                         checked={settings.isStoreOpen}
-                                        onChange={() => setSettings({ ...settings, isStoreOpen: !settings.isStoreOpen })}
+                                        onChange={() =>
+                                            setSettings({
+                                                ...settings,
+                                                isStoreOpen: !settings.isStoreOpen,
+                                            })
+                                        }
                                     />
                                 </div>
+
                                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                     <div>
-                                        <p className="font-bold text-gray-900">Accepting Orders</p>
-                                        <p className="text-sm text-gray-500">Turn off to stop receiving new orders</p>
+                                        <p className="font-bold text-gray-900">
+                                            Accepting Orders
+                                        </p>
+                                        <p className="text-sm text-gray-500">
+                                            Turn off to stop receiving new orders
+                                        </p>
                                     </div>
                                     <Toggle
                                         checked={settings.acceptingOrders}
-                                        onChange={() => setSettings({ ...settings, acceptingOrders: !settings.acceptingOrders })}
+                                        onChange={() =>
+                                            setSettings({
+                                                ...settings,
+                                                acceptingOrders:
+                                                    !settings.acceptingOrders,
+                                            })
+                                        }
                                     />
                                 </div>
                             </div>
@@ -142,40 +192,111 @@ const AdminSettings = () => {
                         </div>
                     </div>
 
-                    {/* Right Column - Financials */}
+                    {/* Right Column */}
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                             <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                 <DollarSign size={18} className="text-emerald-500" />
                                 Finance & Delivery
                             </h2>
+
                             <div className="space-y-4">
                                 <div>
-                                    <label className="text-sm font-semibold text-gray-700 mb-1 block">Standard Delivery Fee (₹)</label>
+                                    <label className="text-sm font-semibold text-gray-700 mb-1 block">
+                                        Standard Delivery Fee (₹)
+                                    </label>
                                     <input
                                         type="number"
                                         value={settings.deliveryFee}
-                                        onChange={e => setSettings({ ...settings, deliveryFee: Number(e.target.value) })}
-                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                        onChange={(e) =>
+                                            setSettings({
+                                                ...settings,
+                                                deliveryFee: Number(e.target.value),
+                                            })
+                                        }
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200"
                                     />
                                 </div>
+
                                 <div>
-                                    <label className="text-sm font-semibold text-gray-700 mb-1 block">Free Delivery Above (₹)</label>
+                                    <label className="text-sm font-semibold text-gray-700 mb-1 block">
+                                        Free Delivery Above (₹)
+                                    </label>
                                     <input
                                         type="number"
                                         value={settings.freeDeliveryAbove}
-                                        onChange={e => setSettings({ ...settings, freeDeliveryAbove: Number(e.target.value) })}
-                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                        onChange={(e) =>
+                                            setSettings({
+                                                ...settings,
+                                                freeDeliveryAbove: Number(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200"
                                     />
                                 </div>
+
                                 <div>
-                                    <label className="text-sm font-semibold text-gray-700 mb-1 block">Tax / GST (%)</label>
+                                    <label className="text-sm font-semibold text-gray-700 mb-1 block">
+                                        Tax / GST (%)
+                                    </label>
                                     <input
                                         type="number"
                                         value={settings.taxRate}
-                                        onChange={e => setSettings({ ...settings, taxRate: Number(e.target.value) })}
-                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                        onChange={(e) =>
+                                            setSettings({
+                                                ...settings,
+                                                taxRate: Number(e.target.value),
+                                            })
+                                        }
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200"
                                     />
+                                </div>
+
+                                {/* 🌧 ADDED ONLY */}
+                                <div className="border-t pt-4">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-700">
+                                                Rainy Time Delivery Fee 🌧
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                Extra charge during rain
+                                            </p>
+                                        </div>
+                                        <Toggle
+                                            checked={settings.rainyDeliveryEnabled}
+                                            onChange={() =>
+                                                setSettings({
+                                                    ...settings,
+                                                    rainyDeliveryEnabled:
+                                                        !settings.rainyDeliveryEnabled,
+                                                })
+                                            }
+                                        />
+                                    </div>
+
+                                    {settings.rainyDeliveryEnabled && (
+                                        <div className="mt-3">
+                                            <label className="text-sm font-semibold text-gray-700 mb-1 block">
+                                                Extra Rain Fee (₹)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={settings.rainyExtraFee}
+                                                onChange={(e) =>
+                                                    setSettings({
+                                                        ...settings,
+                                                        rainyExtraFee: Number(
+                                                            e.target.value
+                                                        ),
+                                                    })
+                                                }
+                                                className="w-full px-4 py-2.5 rounded-lg border border-gray-200"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
