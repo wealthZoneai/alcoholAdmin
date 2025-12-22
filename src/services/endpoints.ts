@@ -105,6 +105,12 @@ const endpoints = {
     // AdminAnlyticsDashboard
     getAnlyticsDashboard: 'api/admin/analytics',
 
+
+    // Admin transactions history
+
+    getTransactionsHistory: 'api/checkout/admin/payments',
+    getTransactionsHistoryByType: 'api/checkout/analytics',
+
 }
 
 export default endpoints

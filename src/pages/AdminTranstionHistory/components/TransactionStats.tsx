@@ -10,10 +10,10 @@ import {
 
 interface TransactionStatsProps {
     stats: {
-        totalCollection: number;
+        totalCollectionAmount: number;
         successRate: number;
-        refunded: number;
-        pending: number;
+        refundedRate: number;
+        cancelledRate: number;
     };
 }
 
@@ -21,7 +21,7 @@ const TransactionStats: React.FC<TransactionStatsProps> = ({ stats }) => {
     const statsConfig = [
         {
             label: "Total Collection",
-            value: `₹${stats.totalCollection.toLocaleString()}`,
+            value: `₹${(stats.totalCollectionAmount ).toLocaleString()}`, // Assuming cents again for Amount
             icon: TrendingUp,
             color: "bg-blue-500",
             trend: "up",
@@ -38,8 +38,8 @@ const TransactionStats: React.FC<TransactionStatsProps> = ({ stats }) => {
             sub: "Completed transactions"
         },
         {
-            label: "Refunded",
-            value: `₹${stats.refunded.toLocaleString()}`,
+            label: "Refunded Rate",
+            value: `${stats.refundedRate}%`,
             icon: RotateCcw,
             color: "bg-rose-500",
             trend: "down",
@@ -47,8 +47,8 @@ const TransactionStats: React.FC<TransactionStatsProps> = ({ stats }) => {
             sub: "Returned to customers"
         },
         {
-            label: "Pending",
-            value: `₹${stats.pending.toLocaleString()}`,
+            label: "Cancelled/Pending Rate",
+            value: `${stats.cancelledRate}%`,
             icon: Clock,
             color: "bg-amber-500",
             trend: "neutral",
@@ -69,8 +69,8 @@ const TransactionStats: React.FC<TransactionStatsProps> = ({ stats }) => {
                             <stat.icon size={24} />
                         </div>
                         <div className={`flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full ${stat.trend === 'up' ? 'bg-emerald-50 text-emerald-600' :
-                                stat.trend === 'down' ? 'bg-rose-50 text-rose-600' :
-                                    'bg-gray-50 text-gray-500'
+                            stat.trend === 'down' ? 'bg-rose-50 text-rose-600' :
+                                'bg-gray-50 text-gray-500'
                             }`}>
                             {stat.trend === 'up' ? <ArrowUpRight size={14} /> :
                                 stat.trend === 'down' ? <ArrowDownRight size={14} /> : null}

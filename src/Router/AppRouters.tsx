@@ -83,7 +83,7 @@ const AppRouters = () => {
           <Route path="/admin/transactions" element={<AdminTranstionHistory />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
-                    <Route path="/admin/Customers" element={<AdminCustomers />} />
+          <Route path="/admin/Customers" element={<AdminCustomers />} />
 
         </Route>
 

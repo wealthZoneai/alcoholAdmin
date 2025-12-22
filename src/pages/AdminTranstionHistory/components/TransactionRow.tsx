@@ -11,7 +11,7 @@ export interface Transaction {
     };
     amount: number;
     date: string;
-    method: "UPI" | "Credit Card" | "Debit Card" | "Net Banking";
+    method: "UPI" | "Credit Card" | "Debit Card" | "Net Banking" | "Online";
     status: "SUCCESS" | "REFUNDED" | "PENDING";
 }
 

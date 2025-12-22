@@ -1,81 +1,97 @@
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import TransactionStats from "./components/TransactionStats";
 import TransactionToolbar from "./components/TransactionToolbar";
 import TransactionTable from "./components/TransactionTable";
 import type { Transaction } from "./components/TransactionRow";
-
-const mockTransactions: Transaction[] = [
-    {
-        id: "TXN-928374",
-        orderId: "ORD-1029",
-        customer: { name: "Rahul Mehta", email: "rahul@gmail.com", avatarColor: "bg-purple-100 text-purple-600" },
-        amount: 12450,
-        date: "18 Dec 2025, 12:30 PM",
-        method: "UPI",
-        status: "SUCCESS"
-    },
-    {
-        id: "TXN-827361",
-        orderId: "ORD-1030",
-        customer: { name: "Sneha Patel", email: "sneha@gmail.com", avatarColor: "bg-blue-100 text-blue-600" },
-        amount: 5800,
-        date: "18 Dec 2025, 11:15 AM",
-        method: "Credit Card",
-        status: "REFUNDED"
-    },
-    {
-        id: "TXN-726154",
-        orderId: "ORD-1031",
-        customer: { name: "Amit Kumar", email: "amit@gmail.com", avatarColor: "bg-emerald-100 text-emerald-600" },
-        amount: 2450,
-        date: "17 Dec 2025, 09:45 PM",
-        method: "UPI",
-        status: "PENDING"
-    },
-    {
-        id: "TXN-625143",
-        orderId: "ORD-1032",
-        customer: { name: "Priya Sharma", email: "priya@example.com", avatarColor: "bg-orange-100 text-orange-600" },
-        amount: 18900,
-        date: "17 Dec 2025, 08:20 PM",
-        method: "Debit Card",
-        status: "SUCCESS"
-    },
-    {
-        id: "TXN-524132",
-        orderId: "ORD-1033",
-        customer: { name: "Kiran Shah", email: "kiran@example.com", avatarColor: "bg-rose-100 text-rose-600" },
-        amount: 3200,
-        date: "16 Dec 2025, 05:10 PM",
-        method: "Net Banking",
-        status: "SUCCESS"
-    },
-];
+import {
+    getTransactionsHistory,
+    getTransactionsHistoryByType,
+    type PaymentTransaction,
+    type TransactionAnalytics
+} from "../../services/apiHelpers";
 
 const AdminTranstionHistory: React.FC = () => {
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState<"ALL" | "SUCCESS" | "REFUNDED" | "PENDING">("ALL");
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const stats = useMemo(() => ({
-        totalCollection: 1254800,
-        successRate: 98.4,
-        refunded: 12450,
-        pending: 4500
-    }), []);
+    // Stats State
+    const [stats, setStats] = useState<TransactionAnalytics>({
+        totalCollectionAmount: 0,
+        successRate: 0,
+        refundedRate: 0,
+        cancelledRate: 0
+    });
+
+    // Fetch Stats
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                // Passing "analytics" or empty string as type? 
+                // The endpoint is getTransactionsHistoryByType which points to 'api/checkout/analytics'.
+                // It takes a type param. "ALL" seems appropriate or empty.
+                const response = await getTransactionsHistoryByType("ALL");
+                if (response.data) {
+                    setStats(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch stats:", error);
+            }
+        };
+        fetchStats();
+    }, []);
+
+    // Fetch Transactions
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            setIsLoading(true);
+            try {
+                const typeParam = activeTab === "ALL" ? "" : activeTab;
+                const response = await getTransactionsHistory(typeParam);
+
+                const rawData: PaymentTransaction[] = response.data || [];
+
+                const mappedData: Transaction[] = rawData.map((txn) => ({
+                    id: `TXN-${txn.id}`,
+                    orderId: txn.orderId,
+                    customer: {
+                        name: `User #${txn.userId}`,
+                        email: "N/A",
+                        avatarColor: "bg-gray-100 text-gray-600"
+                    },
+                    // Assuming amount is in cents/paise
+                    amount: txn.amount / 100,
+                    date: new Date(txn.createdAt).toLocaleString("en-IN", {
+                        day: "numeric", month: "short", year: "numeric",
+                        hour: "2-digit", minute: "2-digit"
+                    }),
+                    method: "Online",
+                    status: txn.status as "SUCCESS" | "REFUNDED" | "PENDING"
+                }));
+
+                setTransactions(mappedData);
+            } catch (error) {
+                console.error("Failed to fetch transactions:", error);
+                setTransactions([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTransactions();
+    }, [activeTab]);
 
     const filteredTransactions = useMemo(() => {
-        return mockTransactions.filter(txn => {
+        return transactions.filter(txn => {
             const matchesSearch =
                 txn.id.toLowerCase().includes(search.toLowerCase()) ||
                 txn.orderId.toLowerCase().includes(search.toLowerCase()) ||
                 txn.customer.name.toLowerCase().includes(search.toLowerCase());
-
-            const matchesTab = activeTab === "ALL" || txn.status === activeTab;
-
-            return matchesSearch && matchesTab;
+            return matchesSearch;
         });
-    }, [search, activeTab]);
+    }, [search, transactions]);
 
     const clearFilters = () => {
         setSearch("");
@@ -105,16 +121,22 @@ const AdminTranstionHistory: React.FC = () => {
                         setActiveTab={setActiveTab}
                     />
 
-                    <TransactionTable
-                        transactions={filteredTransactions}
-                        totalFiltered={filteredTransactions.length}
-                        totalItems={mockTransactions.length}
-                        clearFilters={clearFilters}
-                    />
+                    {isLoading ? (
+                        <div className="p-12 text-center text-gray-500 font-medium animate-pulse">
+                            Loading transactions...
+                        </div>
+                    ) : (
+                        <TransactionTable
+                            transactions={filteredTransactions}
+                            totalFiltered={filteredTransactions.length}
+                            totalItems={transactions.length}
+                            clearFilters={clearFilters}
+                        />
+                    )}
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default AdminTranstionHistory;

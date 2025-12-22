@@ -480,3 +480,32 @@ export function deleteCoupens(id: string) {
 export function getAnlyticsDashboard(range: string) {
   return server.get(`${endpoints.getAnlyticsDashboard}?range=${range}`, { requiresAuth: true });
 }
+
+export function getTransactionsHistory(type: string) {
+  return server.get(`${endpoints.getTransactionsHistory}?type=${type}`, { requiresAuth: true });
+}
+
+export function getTransactionsHistoryByType(type: string) {
+  return server.get(`${endpoints.getTransactionsHistoryByType}?type=${type}`, { requiresAuth: true });
+}
+
+export interface PaymentTransaction {
+  id: number;
+  orderId: string;
+  userId: number;
+  sessionId: string;
+  paymentIntent: string;
+  amount: number;
+  status: "SUCCESS" | "REFUNDED" | "PENDING";
+  createdAt: string;
+  updatedAt: string;
+  orderRefId: number;
+}
+
+export interface TransactionAnalytics {
+  totalCollectionAmount: number;
+  successRate: number;
+  refundedRate: number;
+  cancelledRate: number;
+}
+
