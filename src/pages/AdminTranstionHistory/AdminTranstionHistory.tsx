@@ -6,10 +6,22 @@ import TransactionTable from "./components/TransactionTable";
 import type { Transaction } from "./components/TransactionRow";
 import {
     getTransactionsHistory,
-    getTransactionsHistoryByType,
-    type PaymentTransaction,
-    type TransactionAnalytics
+    getTransactionsHistoryByType
 } from "../../services/apiHelpers";
+
+export interface PaymentTransaction {
+    id: number;
+    orderId: string;
+    userId: number;
+    userName: string;
+    sessionId: string;
+    paymentIntent: string;
+    amount: number;
+    status: "SUCCESS" | "REFUNDED" | "PENDING";
+    createdAt: string;
+    updatedAt: string;
+    orderRefId: number;
+}
 
 const AdminTranstionHistory: React.FC = () => {
     const [search, setSearch] = useState("");
@@ -18,7 +30,7 @@ const AdminTranstionHistory: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     // Stats State
-    const [stats, setStats] = useState<TransactionAnalytics>({
+    const [stats, setStats] = useState({
         totalCollectionAmount: 0,
         successRate: 0,
         refundedRate: 0,
@@ -57,12 +69,12 @@ const AdminTranstionHistory: React.FC = () => {
                     id: `TXN-${txn.id}`,
                     orderId: txn.orderId,
                     customer: {
-                        name: `User #${txn.userId}`,
+                        name: txn.userName,
                         email: "N/A",
                         avatarColor: "bg-gray-100 text-gray-600"
                     },
                     // Assuming amount is in cents/paise
-                    amount: txn.amount / 100,
+                    amount: txn.amount,
                     date: new Date(txn.createdAt).toLocaleString("en-IN", {
                         day: "numeric", month: "short", year: "numeric",
                         hour: "2-digit", minute: "2-digit"
