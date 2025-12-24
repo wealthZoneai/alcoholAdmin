@@ -1,5 +1,13 @@
 import React from "react";
-import { Phone, Mail, Lock, Unlock, MoreHorizontal } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
+
+export interface CustomerOrder {
+    id: string;
+    date: string;
+    items: string;
+    amount: number;
+    status: "DELIVERED" | "CANCELLED" | "PENDING";
+}
 
 export interface AdminCustomer {
     id: number;
@@ -8,18 +16,24 @@ export interface AdminCustomer {
     email: string;
     orderType: "Alcohol" | "Grocery" | "Both";
     totalOrders: number;
+    totalSpent: number;
+    avgTicket: number;
+    orderSuccess: string;
+    refundRequests: number;
+    joinDate: string;
+    address: string;
     lastOrderDate: string;
+    recentOrders: CustomerOrder[];
     status: "ACTIVE" | "BLOCKED";
     avatarColor: string;
 }
 
 interface CustomerRowProps {
     customer: AdminCustomer;
-    toggleStatus: (id: number) => void;
     onClick: (customer: AdminCustomer) => void;
 }
 
-const CustomerRow: React.FC<CustomerRowProps> = ({ customer, toggleStatus, onClick }) => {
+const CustomerRow: React.FC<CustomerRowProps> = ({ customer, onClick }) => {
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
     };
@@ -65,34 +79,6 @@ const CustomerRow: React.FC<CustomerRowProps> = ({ customer, toggleStatus, onCli
             <td className="px-6 py-5">
                 <div className="text-sm font-semibold text-gray-700">{customer.lastOrderDate}</div>
                 <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">Last Transaction</div>
-            </td>
-
-            <td className="px-6 py-5">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black ${customer.status === "ACTIVE"
-                    ? "bg-emerald-50 text-emerald-600"
-                    : "bg-rose-50 text-rose-600"
-                    }`}>
-                    <div className={`w-1.5 h-1.5 rounded-full ${customer.status === "ACTIVE" ? "bg-emerald-500" : "bg-rose-500"} animate-pulse`}></div>
-                    {customer.status}
-                </span>
-            </td>
-
-            <td className="px-6 py-5 text-right">
-                <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                    <button
-                        onClick={() => toggleStatus(customer.id)}
-                        className={`p-2 rounded-xl transition-all ${customer.status === "ACTIVE"
-                            ? "bg-rose-50 text-rose-500 hover:bg-rose-100"
-                            : "bg-emerald-50 text-emerald-500 hover:bg-emerald-100"
-                            }`}
-                        title={customer.status === "ACTIVE" ? "Block Customer" : "Unblock Customer"}
-                    >
-                        {customer.status === "ACTIVE" ? <Lock size={18} /> : <Unlock size={18} />}
-                    </button>
-                    <button className="p-2 bg-gray-50 text-gray-400 rounded-xl hover:bg-gray-100 hover:text-gray-900 transition-all">
-                        <MoreHorizontal size={18} />
-                    </button>
-                </div>
             </td>
         </tr>
     );

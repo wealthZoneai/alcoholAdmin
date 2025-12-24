@@ -15,7 +15,17 @@ const customersData: AdminCustomer[] = [
     email: "rahul@gmail.com",
     orderType: "Alcohol",
     totalOrders: 15,
+    totalSpent: 12450,
+    avgTicket: 1850,
+    orderSuccess: "94%",
+    refundRequests: 2,
+    joinDate: "12 Jan 2024",
+    address: "123 Green Valley, Downtown City, 400010",
     lastOrderDate: "15 Dec 2025",
+    recentOrders: [
+      { id: "ORD-9281", date: "15 Dec 2025", items: "Whiskey, Orange Juice", amount: 2450, status: "DELIVERED" },
+      { id: "ORD-8812", date: "12 Dec 2025", items: "Vodka, Tonic Water", amount: 1800, status: "DELIVERED" },
+    ],
     status: "ACTIVE",
     avatarColor: "bg-purple-100 text-purple-600"
   },
@@ -26,7 +36,17 @@ const customersData: AdminCustomer[] = [
     email: "sneha@gmail.com",
     orderType: "Grocery",
     totalOrders: 8,
+    totalSpent: 6200,
+    avgTicket: 775,
+    orderSuccess: "100%",
+    refundRequests: 0,
+    joinDate: "05 Mar 2024",
+    address: "45 Blue Avenue, Uptown City, 400015",
     lastOrderDate: "12 Dec 2025",
+    recentOrders: [
+      { id: "ORD-7712", date: "12 Dec 2025", items: "Milk, Bread, Eggs", amount: 450, status: "DELIVERED" },
+      { id: "ORD-6654", date: "01 Dec 2025", items: "Fruit Basket", amount: 1200, status: "DELIVERED" },
+    ],
     status: "BLOCKED",
     avatarColor: "bg-blue-100 text-blue-600"
   },
@@ -37,7 +57,17 @@ const customersData: AdminCustomer[] = [
     email: "amit@gmail.com",
     orderType: "Both",
     totalOrders: 27,
+    totalSpent: 28900,
+    avgTicket: 1070,
+    orderSuccess: "88%",
+    refundRequests: 4,
+    joinDate: "20 Nov 2023",
+    address: "88 Emerald Heights, Mid-City, 400020",
     lastOrderDate: "16 Dec 2025",
+    recentOrders: [
+      { id: "ORD-9912", date: "16 Dec 2025", items: "Rum, Coke, Snacks", amount: 3500, status: "DELIVERED" },
+      { id: "ORD-8823", date: "10 Dec 2025", items: "Gin, Tonic", amount: 2800, status: "CANCELLED" },
+    ],
     status: "ACTIVE",
     avatarColor: "bg-emerald-100 text-emerald-600"
   },
@@ -48,48 +78,39 @@ const customersData: AdminCustomer[] = [
     email: "priya@example.com",
     orderType: "Grocery",
     totalOrders: 12,
+    totalSpent: 9800,
+    avgTicket: 816,
+    orderSuccess: "96%",
+    refundRequests: 1,
+    joinDate: "10 Feb 2024",
+    address: "12 Orange Street, East-City, 400025",
     lastOrderDate: "17 Dec 2025",
+    recentOrders: [
+      { id: "ORD-9988", date: "17 Dec 2025", items: "Organic Veggies", amount: 1500, status: "DELIVERED" },
+    ],
     status: "ACTIVE",
     avatarColor: "bg-orange-100 text-orange-600"
   },
 ];
 
 const AdminCustomers: React.FC = () => {
-  const [customers, setCustomers] = useState(customersData);
+  const [customers] = useState(customersData);
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"ALL" | "ACTIVE" | "BLOCKED">("ALL");
   const [selectedCustomer, setSelectedCustomer] = useState<AdminCustomer | null>(null);
 
   const stats = useMemo(() => ({
     total: customers.length,
-    active: customers.filter(c => c.status === "ACTIVE").length,
-    blocked: customers.filter(c => c.status === "BLOCKED").length,
   }), [customers]);
-
-  const toggleStatus = (id: number) => {
-    setCustomers((prev) =>
-      prev.map((customer) =>
-        customer.id === id
-          ? {
-            ...customer,
-            status: customer.status === "ACTIVE" ? "BLOCKED" : "ACTIVE",
-          }
-          : customer
-      )
-    );
-  };
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch = customer.name.toLowerCase().includes(search.toLowerCase()) ||
       customer.phone.includes(search) ||
       customer.email.toLowerCase().includes(search.toLowerCase());
-    const matchesTab = activeTab === "ALL" || customer.status === activeTab;
-    return matchesSearch && matchesTab;
+    return matchesSearch;
   });
 
   const clearFilters = () => {
     setSearch("");
-    setActiveTab("ALL");
   };
 
   return (
@@ -116,13 +137,10 @@ const AdminCustomers: React.FC = () => {
           <CustomerToolbar
             search={search}
             setSearch={setSearch}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
           />
 
           <CustomerTable
             customers={filteredCustomers}
-            toggleStatus={toggleStatus}
             onRowClick={setSelectedCustomer}
             clearFilters={clearFilters}
             totalFiltered={filteredCustomers.length}

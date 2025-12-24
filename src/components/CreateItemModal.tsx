@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { getMainCategories, getCategorySubcategories } from "../services/apiHelpers";
 import { motion } from "framer-motion";
 import {
   X,
@@ -24,6 +25,7 @@ interface CreateItemModalProps {
   onSubmit: (payload: any) => void;
   onBulkSubmit: (payload: any) => void;
   initialData?: any;
+  subCategoryId?: string;
 }
 
 const defaultData = {
@@ -51,6 +53,7 @@ export default function CreateItemModal({
   onSubmit,
   onBulkSubmit,
   initialData,
+  subCategoryId,
 }: CreateItemModalProps) {
   const [form, setForm] = useState<typeof defaultData>(defaultData);
   const [isDragging, setIsDragging] = useState(false);
@@ -63,15 +66,62 @@ export default function CreateItemModal({
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
 
+  // Category Logic States
+  const [mainCategories, setMainCategories] = useState<any[]>([]);
+  const [subCategories, setSubCategories] = useState<any[]>([]);
+  const [localMainCatId, setLocalMainCatId] = useState("");
+  const [localSubCatId, setLocalSubCatId] = useState("");
+  const [loadingCats, setLoadingCats] = useState(false);
+
 
   useEffect(() => {
     if (isOpen) {
       setForm(initialData ? { ...defaultData, ...initialData } : defaultData);
-      // Reset bulk preview/name when opening or switching tabs
+      // Reset bulk preview/name
       setExcelPreview([]);
       setExcelFileName("");
+
+      if (!subCategoryId && !initialData) {
+        fetchMainCategories();
+      }
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, subCategoryId]);
+
+  const fetchMainCategories = async () => {
+    try {
+      setLoadingCats(true);
+      const response = await getMainCategories();
+      setMainCategories(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Failed to fetch main categories", error);
+    } finally {
+      setLoadingCats(false);
+    }
+  };
+
+  const fetchSubCategories = async (mainCatId: string) => {
+    try {
+      setLoadingCats(true);
+      const response = await getCategorySubcategories(mainCatId);
+      const data = Array.isArray(response.data) ? response.data : (response?.data?.subCategories || []);
+      setSubCategories(data);
+    } catch (error) {
+      console.error("Failed to fetch subcategories", error);
+    } finally {
+      setLoadingCats(false);
+    }
+  };
+
+  const handleMainCatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setLocalMainCatId(val);
+    setLocalSubCatId("");
+    if (val) {
+      fetchSubCategories(val);
+    } else {
+      setSubCategories([]);
+    }
+  };
 
   // Normal Inputs
   const handleChange = (
@@ -176,6 +226,17 @@ export default function CreateItemModal({
     if (form.stock && Number(form.stock) < 0)
       return toast("Stock cannot be negative");
 
+    // Category validation if adding from global inventory
+    let targetSubCatId = subCategoryId || initialData?.subCategoryId || localSubCatId;
+    if (!targetSubCatId && activeTab === "single") {
+      return toast.error("Please select a Category and Sub-category");
+    }
+
+    const finalForm = {
+      ...form,
+      subCategoryId: targetSubCatId
+    };
+
     // Validation: Min/Max vs Stock
     if (form.stock && form.minValue && Number(form.minValue) > Number(form.stock)) {
       return toast.error("Min Value cannot be greater than Stock Quantity");
@@ -187,7 +248,7 @@ export default function CreateItemModal({
     if (form.minValue && form.maxValue && Number(form.minValue) > Number(form.maxValue))
       return toast("Min Value cannot be greater than Max Value");
 
-    onSubmit(form);
+    onSubmit(finalForm);
     onClose();
   };
 
@@ -376,8 +437,41 @@ export default function CreateItemModal({
               </div>
 
               {/* RIGHT SIDE: FORM INPUTS */}
-              {/* RIGHT SIDE: FORM INPUTS */}
               <div className="lg:col-span-8 space-y-6">
+                {!subCategoryId && !initialData && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Main Category</label>
+                      <select
+                        value={localMainCatId}
+                        onChange={handleMainCatChange}
+                        disabled={loadingCats}
+                        className="w-full p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium text-zinc-800 dark:text-zinc-100 disabled:opacity-50"
+                        required
+                      >
+                        <option value="">{loadingCats ? "Loading..." : "Select Category"}</option>
+                        {mainCategories.map((cat: any) => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Sub Category</label>
+                      <select
+                        value={localSubCatId}
+                        onChange={(e) => setLocalSubCatId(e.target.value)}
+                        disabled={!localMainCatId || loadingCats}
+                        className="w-full p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium text-zinc-800 dark:text-zinc-100 disabled:opacity-50"
+                        required
+                      >
+                        <option value="">{loadingCats ? "Loading..." : "Select Sub-Category"}</option>
+                        {subCategories.map((sub: any) => (
+                          <option key={sub.id} value={sub.id}>{sub.displayName || sub.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
 
                 {/* NAME */}
                 <InputGroup label="Product Name" icon={<Package size={16} />}>

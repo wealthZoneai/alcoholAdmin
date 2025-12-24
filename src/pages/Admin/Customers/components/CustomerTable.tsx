@@ -5,7 +5,6 @@ import { Users } from "lucide-react";
 
 interface CustomerTableProps {
     customers: AdminCustomer[];
-    toggleStatus: (id: number) => void;
     onRowClick: (customer: AdminCustomer) => void;
     clearFilters: () => void;
     totalFiltered: number;
@@ -14,7 +13,6 @@ interface CustomerTableProps {
 
 const CustomerTable: React.FC<CustomerTableProps> = ({
     customers,
-    toggleStatus,
     onRowClick,
     clearFilters,
     totalFiltered,
@@ -30,8 +28,6 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                             <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase tracking-widest">Order Type</th>
                             <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase tracking-widest text-center">Stats</th>
                             <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase tracking-widest">Activity</th>
-                            <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase tracking-widest">Status</th>
-                            <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -39,7 +35,6 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                             <CustomerRow
                                 key={customer.id}
                                 customer={customer}
-                                toggleStatus={toggleStatus}
                                 onClick={onRowClick}
                             />
                         ))}

@@ -420,6 +420,7 @@ const GroceryItems: React.FC = () => {
             {/* Create / Edit Item Modal */}
             <CreateItemModal
                 isOpen={isItemModalOpen}
+                subCategoryId={subcategoryId}
                 onClose={() => {
                     setItemModalOpen(false);
                     setEditingItem(null);

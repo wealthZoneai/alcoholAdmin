@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Grid3x3, List, Search, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Trash2, Grid3x3, List, Search } from "lucide-react";
 import { useSelector } from "react-redux";
 
 import { getAllItems, createItem, updateItem, deleteItem } from "../../../services/apiHelpers";
@@ -44,7 +44,7 @@ const AdminInventory: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const observer = useRef<IntersectionObserver | null>(null);
-    const [pageSize,setPageSize] = useState(15);
+    const [pageSize, setPageSize] = useState(15);
 
     const lastElementRef = useCallback((node: HTMLDivElement) => {
         if (loading) return;
@@ -146,7 +146,7 @@ const AdminInventory: React.FC = () => {
         }
     };
 
-    const handleSubmitBulkItem = async (data: { excelFile: File; zipFile: File; }) => {
+    const handleSubmitBulkItem = async (_data: { excelFile: File; zipFile: File; }) => {
         // Bulk upload usually needs a subCategory ID too.
         toast.error("Please upload bulk items inside a specific Sub-Category page.");
     };
@@ -172,13 +172,18 @@ const AdminInventory: React.FC = () => {
                         <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Inventory Logic</h1>
                         <p className="text-gray-500 mt-1">Manage global inventory, prices, and stock.</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button onClick={() => toast("Please navigate to a category to add items.")} className="hidden md:flex items-center gap-2 bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                    {/* Desktop Action Buttons */}
+                    <div className="hidden md:flex items-center gap-3">
+                        <button
+                            onClick={() => setItemModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-sm shadow-indigo-200 dark:shadow-none font-medium"
+                        >
                             <Plus size={18} />
                             <span>Add Item</span>
                         </button>
                     </div>
                 </header>
+
 
                 {/* Controls Bar */}
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col xl:flex-row gap-4 justify-between items-center sticky top-20 z-30">

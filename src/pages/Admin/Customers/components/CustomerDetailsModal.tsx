@@ -3,15 +3,12 @@ import {
     X,
     User,
     ShoppingBag,
-    CreditCard,
     Mail,
     Phone,
     MapPin,
     Calendar,
     CheckCircle2,
     XCircle,
-    Clock,
-    ExternalLink,
     ArrowUpRight,
     TrendingUp,
     RotateCcw
@@ -25,22 +22,11 @@ interface CustomerDetailsModalProps {
 }
 
 const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, onClose }) => {
-    const [activeTab, setActiveTab] = useState<"overview" | "orders" | "payments">("overview");
+    const [activeTab, setActiveTab] = useState<"overview" | "orders">("overview");
 
-    // Mock data for the detailed view
-    const mockOrders = [
-        { id: "ORD-9281", date: "15 Dec 2025", items: "Whiskey, Orange Juice", amount: 2450, status: "DELIVERED" },
-        { id: "ORD-8812", date: "12 Dec 2025", items: "Vodka, Tonic Water", amount: 1800, status: "DELIVERED" },
-        { id: "ORD-7654", date: "05 Dec 2025", items: "Grocery Bundle", amount: 3200, status: "CANCELLED" },
-        { id: "ORD-6543", date: "28 Nov 2025", items: "Red Wine, Cheese", amount: 1550, status: "DELIVERED" },
-    ];
 
-    const mockPayments = [
-        { id: "TXN-101", date: "15 Dec 2025", method: "UPI", amount: 2450, status: "SUCCESS" },
-        { id: "TXN-098", date: "12 Dec 2025", method: "Credit Card", amount: 1800, status: "SUCCESS" },
-        { id: "TXN-087", date: "05 Dec 2025", method: "UPI", amount: 3200, status: "REFUNDED" },
-        { id: "TXN-076", date: "28 Nov 2025", method: "Debit Card", amount: 1550, status: "SUCCESS" },
-    ];
+
+
 
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -83,7 +69,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                                 </span>
                             </div>
                             <p className="text-gray-400 font-medium mt-1 flex items-center gap-2">
-                                Customer since 12 Jan 2024 • {customer.totalOrders} Orders
+                                Customer since {customer.joinDate} • {customer.totalOrders} Orders
                             </p>
                         </div>
                     </div>
@@ -94,14 +80,13 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                     {[
                         { id: "overview", label: "Overview", icon: User },
                         { id: "orders", label: "Orders", icon: ShoppingBag },
-                        { id: "payments", label: "Payments", icon: CreditCard },
                     ].map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
                             className={`flex items-center gap-2 px-2 py-4 text-sm font-bold border-b-2 transition-all ${activeTab === tab.id
-                                    ? "border-gray-900 text-gray-900"
-                                    : "border-transparent text-gray-400 hover:text-gray-600"
+                                ? "border-gray-900 text-gray-900"
+                                : "border-transparent text-gray-400 hover:text-gray-600"
                                 }`}
                         >
                             <tab.icon size={18} />
@@ -142,7 +127,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                                             <div className="p-2 bg-white rounded-xl shadow-sm"><MapPin size={20} className="text-gray-500" /></div>
                                             <div>
                                                 <p className="text-xs text-gray-400 font-bold uppercase">Default Address</p>
-                                                <p className="font-bold text-gray-900">123 Green Valley, Downtown City, 400010</p>
+                                                <p className="font-bold text-gray-900">{customer.address}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -157,7 +142,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                                                 <ArrowUpRight size={14} className="text-blue-400" />
                                             </div>
                                             <p className="text-[10px] text-blue-400 font-black uppercase">Total Spent</p>
-                                            <p className="text-2xl font-black text-blue-900 mt-1">₹12,450</p>
+                                            <p className="text-2xl font-black text-blue-900 mt-1">₹{customer.totalSpent.toLocaleString()}</p>
                                         </div>
                                         <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100">
                                             <div className="flex items-center justify-between mb-2">
@@ -165,14 +150,14 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                                                 <CheckCircle2 size={14} className="text-emerald-400" />
                                             </div>
                                             <p className="text-[10px] text-emerald-400 font-black uppercase">Orders Success</p>
-                                            <p className="text-2xl font-black text-emerald-900 mt-1">94%</p>
+                                            <p className="text-2xl font-black text-emerald-900 mt-1">{customer.orderSuccess}</p>
                                         </div>
-                                        <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100">
+                                        <div className="p-6 bg-purple-50 rounded-3xl border border-purple-100">
                                             <div className="flex items-center justify-between mb-2">
-                                                <Clock size={20} className="text-amber-600" />
+                                                <TrendingUp size={20} className="text-purple-600" />
                                             </div>
-                                            <p className="text-[10px] text-amber-400 font-black uppercase">Avg. Ticket</p>
-                                            <p className="text-2xl font-black text-amber-900 mt-1">₹1,850</p>
+                                            <p className="text-[10px] text-purple-400 font-black uppercase">Avg. Ticket</p>
+                                            <p className="text-2xl font-black text-purple-900 mt-1">₹{customer.avgTicket.toLocaleString()}</p>
                                         </div>
                                         <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100">
                                             <div className="flex items-center justify-between mb-2">
@@ -180,7 +165,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                                                 <XCircle size={14} className="text-rose-400" />
                                             </div>
                                             <p className="text-[10px] text-rose-400 font-black uppercase">Refund Request</p>
-                                            <p className="text-2xl font-black text-rose-900 mt-1">2 Total</p>
+                                            <p className="text-2xl font-black text-rose-900 mt-1">{customer.refundRequests} Total</p>
                                         </div>
                                     </div>
                                 </div>
@@ -206,7 +191,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50">
-                                            {mockOrders.map((order) => (
+                                            {customer.recentOrders.map((order) => (
                                                 <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
                                                     <td className="px-4 py-4 font-bold text-gray-900">#{order.id}</td>
                                                     <td className="px-4 py-4 text-sm font-medium text-gray-600">{order.date}</td>
@@ -226,52 +211,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                             </motion.div>
                         )}
 
-                        {activeTab === "payments" && (
-                            <motion.div
-                                key="payments"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                            >
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left">
-                                        <thead>
-                                            <tr className="border-b border-gray-100">
-                                                <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Txn ID</th>
-                                                <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Date</th>
-                                                <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Method</th>
-                                                <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Amount</th>
-                                                <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-50">
-                                            {mockPayments.map((payment) => (
-                                                <tr key={payment.id} className="hover:bg-gray-50/50 transition-colors">
-                                                    <td className="px-4 py-4 font-bold text-gray-900">{payment.id}</td>
-                                                    <td className="px-4 py-4 text-sm font-medium text-gray-600">{payment.date}</td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                                                                <CreditCard size={14} className="text-gray-500" />
-                                                            </div>
-                                                            <span className="text-sm font-bold text-gray-700">{payment.method}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4 font-bold text-gray-900">₹{payment.amount.toLocaleString()}</td>
-                                                    <td className="px-4 py-4 text-right">
-                                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${payment.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                                                            }`}>
-                                                            <div className={`w-1.5 h-1.5 rounded-full ${payment.status === 'SUCCESS' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-                                                            {payment.status}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </motion.div>
-                        )}
+
                     </AnimatePresence>
                 </div>
 
