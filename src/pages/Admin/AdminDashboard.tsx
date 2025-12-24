@@ -11,9 +11,7 @@ import {
     Image as ImageIcon,
     MessageSquare,
     Package,
-    ShieldCheck,
     TrendingUp,
-    Clock,
     MapPin,
     Gift,
     BarChart2,
@@ -21,9 +19,7 @@ import {
     Bell,
     Award,
     Zap,
-    UtensilsCrossed,
-    Smartphone,
-    Search
+    Smartphone
 } from "lucide-react";
 import type { RootState } from "../../Redux/store";
 import AdminStatCard from "../../components/Admin/AdminStatCard";
@@ -111,7 +107,7 @@ const AdminDashboard = () => {
             items: [
                 { label: "Categories", path: "/admin/categories", icon: <Layers size={20} /> },
                 { label: "Sub-Categories", path: "/admin/sub-categories", icon: <Layers size={20} /> },
-                
+
                 // { label: "Food Inventory", subLabel: "Edit Items/Stock", path: "/admin/inventory", icon: <LayoutDashboard size={20} /> },
                 { label: "Top Rated", path: "/admin/top-rated", icon: <Star size={20} /> },
                 { label: "Items Inventory", subLabel: "Edit Items/Item", path: "/admin/Item-Inventory", icon: <LayoutDashboard size={20} /> },

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X, UploadCloud, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
-import { updateHomeBanner } from "../../services/apiHelpers";
+import { updateHomeBrands } from "../../services/apiHelpers";
 
 interface BannerData {
     videoUrl?: string;
@@ -54,7 +54,7 @@ const EditBannerModal: React.FC<EditModalProps> = ({ isOpen, onClose, initialDat
             if (imageFile) formData.append("image", imageFile);
             if (videoFile) formData.append("video", videoFile);
 
-            const response = await updateHomeBanner(formData);
+            const response = await updateHomeBrands(formData);
             if (response.data) {
                 onSuccess(response.data);
                 toast.success("Banner updated successfully!");

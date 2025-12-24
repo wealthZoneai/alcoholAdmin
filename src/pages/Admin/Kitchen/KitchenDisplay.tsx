@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Clock, CheckCircle, Warehouse, ArrowLeft, PackageCheck, PackageOpen } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Clock, Warehouse, ArrowLeft, PackageCheck, PackageOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getOrdersByStatus, updateOrderStatus } from "../../../services/apiHelpers";
@@ -74,17 +74,7 @@ const KitchenDisplay = () => {
         return Math.floor(diff / 60000); // minutes
     };
 
-    const getUrgencyColor = (minutes: number) => {
-        if (minutes > 20) return "bg-red-50 border-red-200";
-        if (minutes > 10) return "bg-orange-50 border-orange-200";
-        return "bg-white border-gray-200";
-    };
 
-    const getUrgencyHeader = (minutes: number) => {
-        if (minutes > 20) return "bg-red-500 text-white";
-        if (minutes > 10) return "bg-orange-500 text-white";
-        return "bg-emerald-500 text-white";
-    };
 
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100 py-6 mt-10 overflow-hidden flex flex-col">

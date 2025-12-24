@@ -21,7 +21,7 @@ const TransactionStats: React.FC<TransactionStatsProps> = ({ stats }) => {
     const statsConfig = [
         {
             label: "Total Collection",
-            value: `₹${(stats.totalCollectionAmount ).toLocaleString()}`, // Assuming cents again for Amount
+            value: `₹${(stats.totalCollectionAmount).toLocaleString()}`, // Assuming cents again for Amount
             icon: TrendingUp,
             color: "bg-blue-500",
             trend: "up",
@@ -30,7 +30,7 @@ const TransactionStats: React.FC<TransactionStatsProps> = ({ stats }) => {
         },
         {
             label: "Success Rate",
-            value: `${stats.successRate}%`,
+            value: `${Number(stats.successRate).toFixed(2)}%`,
             icon: CheckCircle2,
             color: "bg-emerald-500",
             trend: "up",
@@ -39,7 +39,7 @@ const TransactionStats: React.FC<TransactionStatsProps> = ({ stats }) => {
         },
         {
             label: "Refunded Rate",
-            value: `${stats.refundedRate}%`,
+            value: `${Number(stats.refundedRate).toFixed(2)}%`,
             icon: RotateCcw,
             color: "bg-rose-500",
             trend: "down",
@@ -48,7 +48,7 @@ const TransactionStats: React.FC<TransactionStatsProps> = ({ stats }) => {
         },
         {
             label: "Cancelled/Pending Rate",
-            value: `${stats.cancelledRate}%`,
+            value: `${Number(stats.cancelledRate).toFixed(2)}%`,
             icon: Clock,
             color: "bg-amber-500",
             trend: "neutral",

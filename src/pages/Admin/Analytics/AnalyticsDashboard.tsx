@@ -190,7 +190,7 @@ const AnalyticsDashboard = () => {
                                         dataKey="value"
                                         stroke="none"
                                     >
-                                        {(analyticsData?.categoryData || []).map((entry: any, index: number) => (
+                                        {(analyticsData?.categoryData || []).map((_entry: any, index: number) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>

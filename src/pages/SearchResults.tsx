@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import { searchItems } from "../services/apiHelpers";
-import type { RootState } from "../Redux/store";
 import SubItemCard from "./SubCategory/SubItemCard";
 
 interface Product {
@@ -27,8 +25,6 @@ interface Product {
 const SearchResults: React.FC = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    // const dispatch = useDispatch();
-    const userId = useSelector((state: RootState) => state.user.userId);
     const query = searchParams.get("q") || "";
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);

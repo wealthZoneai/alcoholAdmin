@@ -1,4 +1,4 @@
-import React from "react";
+
 import { ArrowLeft, Plus, Phone, Mail, MoreVertical, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

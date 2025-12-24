@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, UploadCloud, Trash2, Sparkles, Image as ImageIcon } from "lucide-react";
+import { X, UploadCloud, Trash2, Sparkles } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { createSubcategory, updateSubcategory } from "../../../../services/apiHelpers";
 
@@ -38,7 +38,6 @@ const CreateSubCategoryModal: React.FC<ModalProps> = ({
     onSuccess,
 }) => {
     const [form, setForm] = useState(defaultData);
-    const [isDragging, setIsDragging] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fileRef = useRef<HTMLInputElement | null>(null);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     UploadCloud,
     Save,
@@ -50,7 +50,6 @@ const AdminBanners = () => {
 
     /* ========== STATES ========== */
     const [loading, setLoading] = useState(false);
-    const [initialLoading, setInitialLoading] = useState(true);
     const [bannerData, setBannerData] = useState<BannerData>(defaultData);
 
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -98,7 +97,7 @@ const AdminBanners = () => {
         } catch (error) {
             console.error("Error fetching banner:", error);
         } finally {
-            setInitialLoading(false);
+
         }
     };
 

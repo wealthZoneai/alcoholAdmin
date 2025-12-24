@@ -1,14 +1,7 @@
-// src/components/Header.tsx
-import React, { useEffect, useState } from "react";
-import { Search, Heart, ShoppingCart, User, X, Package } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState } from "react";
+import { Search, User, X, Package } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { setCart } from "../Redux/cartSlice";
-import { setWishlist } from "../Redux/wishlistSlice";
-import type { RootState } from "../Redux/store";
 import { motion, AnimatePresence } from "framer-motion";
-import ShowCart from "./ShowCart";
-import { getAddToCart, getFavoriteItems } from "../services/apiHelpers";
 
 interface HeaderProps {
   onSearchChange?: (value: string) => void;
@@ -16,12 +9,9 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onSearchChange }) => {
   const [showSearch, setShowSearch] = useState(false);
-  const [showCart, setShowCart] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
-  const role = useSelector((state: RootState) => state.user.role);
 
 
 
@@ -127,16 +117,16 @@ const Header: React.FC<HeaderProps> = ({ onSearchChange }) => {
             </button>
 
             {/* Admin Dashboard - Only visible to Admins */}
-           
-              <button
-                onClick={() => navigate("/admin/orders")}
-                className="p-2.5 rounded-xl hover:bg-purple-50 transition group"
-                aria-label="Admin Dashboard"
-              >
-                <Package className="w-5 h-5 text-gray-700 group-hover:text-blue-500 transition" />
-              </button>
-    
-        
+
+            <button
+              onClick={() => navigate("/admin/orders")}
+              className="p-2.5 rounded-xl hover:bg-purple-50 transition group"
+              aria-label="Admin Dashboard"
+            >
+              <Package className="w-5 h-5 text-gray-700 group-hover:text-blue-500 transition" />
+            </button>
+
+
 
             {/*   Profile */}
             <button

@@ -1,6 +1,6 @@
 import { Edit2, Trash2, ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+
 
 export interface ComboItem {
   id: number;
@@ -23,7 +23,6 @@ interface Props {
 }
 
 const ComboCard: React.FC<Props> = ({ item, onEdit, onDelete }) => {
-    const [data,setData] = useState(item);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -31,7 +30,7 @@ const ComboCard: React.FC<Props> = ({ item, onEdit, onDelete }) => {
       className="bg-white rounded-2xl shadow border border-gray-200 overflow-hidden group"
     >
       <div className="relative h-48">
-        <img src={data.image} className="w-full h-full object-cover" />
+        <img src={item.image} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60" />
 
         <div className="absolute top-4 left-4 bg-orange-500 text-white text-xs px-3 py-1 rounded-full flex gap-1">
@@ -49,8 +48,8 @@ const ComboCard: React.FC<Props> = ({ item, onEdit, onDelete }) => {
       </div>
 
       <div className="p-5">
-        <h3 className="font-bold">{data.title}</h3>
-        <p className="text-gray-500 text-sm mb-3">{data.subtitle}</p>
+        <h3 className="font-bold">{item.title}</h3>
+        <p className="text-gray-500 text-sm mb-3">{item.subtitle}</p>
         <span className="text-orange-600 text-sm font-semibold flex gap-1">
           View Details <ArrowRight size={16} />
         </span>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Package,
@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../Redux/store";
 import toast from "react-hot-toast";
 import ReviewModal, { type ReviewData } from "../components/ReviewModal";
-import { getCurrentOrder, getAllOrders, submitReview, getAllOrderList } from "../services/apiHelpers";
+import { getCurrentOrder, getAllOrders, submitReview } from "../services/apiHelpers";
 
 interface OrderItem {
     id: number;
@@ -48,7 +48,6 @@ const Orders: React.FC = () => {
     const [activeTab, setActiveTab] = useState<"ongoing" | "history">("ongoing");
     const [reviewModalOpen, setReviewModalOpen] = useState(false);
     const [selectedItemForReview, setSelectedItemForReview] = useState<OrderItem | null>(null);
-    const [adminOrdersList, setAdminOrdersList] = useState<[]>([]);
 
     const userId = useSelector((state: RootState) => state.user.userId);
 
@@ -143,23 +142,7 @@ const Orders: React.FC = () => {
     }, [userId]);
 
 
-    useEffect(() => {
-        const adminFetchOrders = async () => {
-            setLoading(true);
-            try {
-                const allOrdersRes = await getAllOrderList();
-                const allData = allOrdersRes.data;
-                setAdminOrdersList(allData);
-            }
-            catch (error) {
-                console.error("Error fetching admin orders:", error);
-                toast.error("Failed to load orders");
-            } finally {
-                setLoading(false);
-            }
-        };
-        adminFetchOrders();
-    }, [userId]);
+
 
 
     const handleReviewSubmit = async (reviewData: ReviewData) => {
@@ -501,8 +484,8 @@ const Orders: React.FC = () => {
                                                 <div className="flex flex-col items-center">
                                                     <div
                                                         className={`w-10 h-10 rounded-full flex items-center justify-center ${step.completed
-                                                                ? "bg-emerald-600 text-white"
-                                                                : "bg-gray-200 text-gray-400"
+                                                            ? "bg-emerald-600 text-white"
+                                                            : "bg-gray-200 text-gray-400"
                                                             }`}
                                                     >
                                                         {step.completed ? (

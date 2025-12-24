@@ -1,29 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ShoppingCart } from "lucide-react";
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../../Redux/store";
-import { AddToCart } from "../../services/apiHelpers";
-import { addToCart } from "../../Redux/cartSlice";
+import { X } from "lucide-react";
 
 /* ===================== TYPES ===================== */
 
 export interface Product {
-    id: any;
-    subCategoryId: number;
-    name: string;
-    price: number;
-    discount: number;
-    rating: number;
-    description: string;
-    isFavorite: boolean;
-    imageUrl: string;
-    category: string;
-    minValue: number;
-    maxValue: number;
-    // stepValue: number;
-    unitType: string;
+  id: any;
+  subCategoryId: number;
+  name: string;
+  price: number;
+  discount: number;
+  rating: number;
+  description: string;
+  isFavorite: boolean;
+  imageUrl: string;
+  category: string;
+  minValue: number;
+  maxValue: number;
+  // stepValue: number;
+  unitType: string;
 }
 
 interface Review {
@@ -49,17 +44,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
   onSelectProduct,
   reviews = [],
 }) => {
-  const dispatch = useDispatch();
-  const userId = useSelector((state: RootState) => state.user.userId);
-
   // ✅ Hooks ALWAYS run
-  const [isAdding, setIsAdding] = useState(false);
-  const [quantity, setQuantity] = useState<number>(1);
-
   useEffect(() => {
-    if (selectedProduct) {
-      setQuantity(selectedProduct.minValue || 1);
-    }
+    // No-op or quantity logic if needed, but quantity is unused now
   }, [selectedProduct]);
 
   // ✅ Safe early return AFTER hooks
@@ -97,7 +84,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
         exit={{ opacity: 0 }}
       >
         <motion.div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
           className="bg-white rounded-3xl max-w-3xl w-full no-scrollbar shadow-2xl relative flex flex-col max-h-[90vh]"
           initial={{ scale: 0.9, y: 30 }}
           animate={{ scale: 1, y: 0 }}
@@ -135,11 +122,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   {Array.from({ length: 5 }).map((_, i) => (
                     <span
                       key={i}
-                      className={`text-lg ${
-                        i < (selectedProduct.rating ?? 0)
-                          ? "text-yellow-400"
-                          : "text-gray-300"
-                      }`}
+                      className={`text-lg ${i < (selectedProduct.rating ?? 0)
+                        ? "text-yellow-400"
+                        : "text-gray-300"
+                        }`}
                     >
                       ★
                     </span>
