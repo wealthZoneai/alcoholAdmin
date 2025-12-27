@@ -70,7 +70,6 @@ const AppRouters = () => {
           <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
           <Route path="/admin/marketing" element={<Coupons />} />
           <Route path="/admin/orders" element={<AdminOrderScreen />} />
-          <Route path="/admin/marketing" element={<Coupons />} />
           <Route path="/admin/kitchen" element={<KitchenDisplay />} />
           <Route path="/admin/inventory" element={<AdminInventory />} />
           <Route path="/admin/staff" element={<AdminStaff />} />

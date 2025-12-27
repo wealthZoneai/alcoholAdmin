@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
@@ -28,6 +28,7 @@ import { getAllOrders, getMainCategories, getUserProfile, getAllItems, getDashbo
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { role, userId } = useSelector((state: RootState) => state.user);
+    const [loading, setLoading] = useState(true);
 
     const [stats, setStats] = useState({
         totalOrders: 0,
@@ -50,6 +51,7 @@ const AdminDashboard = () => {
 
     const fetchStats = async () => {
         if (!userId) return;
+        setLoading(true);
         try {
             const [ordersRes, _catsRes, itemsRes, overviewRes] = await Promise.all([
                 getAllOrders(userId),
@@ -77,6 +79,8 @@ const AdminDashboard = () => {
 
         } catch (error) {
             console.error("Error fetching admin stats:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -97,7 +101,7 @@ const AdminDashboard = () => {
         items: DashboardItem[];
     }
 
-    const sections: DashboardSection[] = [
+    const sections: DashboardSection[] = useMemo(() => [
         {
             title: "Live Operations",
             description: "Manage real-time activities",
@@ -154,7 +158,7 @@ const AdminDashboard = () => {
                 { label: "App Settings", path: "/admin/settings", icon: <Smartphone size={20} /> },
             ]
         },
-    ];
+    ], [stats.pendingOrders]);
 
     const container = {
         hidden: { opacity: 0 },
@@ -172,7 +176,15 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#f3f4f6] pb-12">
+        <div className="min-h-screen bg-[#f3f4f6] pb-12 relative">
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+                    <div className="flex flex-col items-center">
+                        <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="mt-4 text-emerald-600 font-bold">Synchronizing Dashboard...</p>
+                    </div>
+                </div>
+            )}
 
             {/* Header / Hero */}
             <div className="bg-[#1a1c23] text-white pt-24 pb-32 px-4 sm:px-8 relative overflow-hidden">
@@ -187,7 +199,7 @@ const AdminDashboard = () => {
                                     Admin Console
                                 </span>
                                 <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold tracking-wider uppercase border border-emerald-500/20 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Live
                                 </span>
                             </div>
                             <h1 className="text-4xl font-extrabold tracking-tight mb-2">
@@ -317,7 +329,6 @@ const AdminDashboard = () => {
                                         </div>
                                         {item.active && (
                                             <span className="flex h-2 w-2 mr-2">
-                                                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-rose-400 opacity-75"></span>
                                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                                             </span>
                                         )}

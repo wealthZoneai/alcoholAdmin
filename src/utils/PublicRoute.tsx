@@ -8,10 +8,11 @@ interface Props {
 }
 
 const PublicRoute: React.FC<Props> = ({ children }) => {
-  const userId = useSelector((state: RootState) => state.user.userId);
+  const role = useSelector((state: RootState) => state.user.role) || localStorage.getItem("role");
+  const userId = useSelector((state: RootState) => state.user.userId) || localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
-  if (userId || token) {
+  if ((userId || token) && role === "ADMIN") {
     return <Navigate to="/admin-dashboard" replace />;
   }
 
