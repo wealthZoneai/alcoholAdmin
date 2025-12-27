@@ -12,6 +12,12 @@ export interface RegisterUserBody {
   password?: string;
 }
 
+export interface ReviewData {
+  rating: number;
+  comment: string;
+  userId?: string;
+}
+
 
 // login 
 export function loginUser({ email, password }: ILoginUserBody) {
@@ -29,6 +35,14 @@ export function UserOtp({ email, otp }: any) {
   const body = { email, otp };
   return server.post(endpoints.verifyEmailOtp, body, { requiresAuth: false });
 }
+
+// Dashboard Overview
+export function getDashboardOverview() {
+  return server.get(endpoints.getDashboardOverview, { requiresAuth: true });
+}
+
+
+
 
 // ============================================
 //  ORDERS SYSTEM
@@ -250,6 +264,11 @@ export function deleteItem(itemId: string) {
   return server.delete(`${endpoints.deleteItem}${itemId}`, { requiresAuth: true });
 }
 
+export function updateItemStatus(itemId: string, itemStatus: "ACTIVE" | "INACTIVE", visibilityStatus: "VISIBLE" | "HIDDEN") {
+  const body = { itemStatus, visibilityStatus };
+  return server.put(endpoints.updateItemStatus.replace("{itemId}", itemId), body, { requiresAuth: true });
+}
+
 export function searchItems(query: string) {
   return server.get(`${endpoints.searchItems}${query}`, { requiresAuth: true });
 }
@@ -307,6 +326,14 @@ export function setFavoriteItem(itemId: string | number, isFavorite: boolean, us
 
 
 // Reviews
+export function getReviewStats() {
+  return server.get(endpoints.getReviews, { requiresAuth: true });
+}
+
+export function getReviewsList() {
+  return server.get(endpoints.getHomeReviews, { requiresAuth: false });
+}
+
 export function submitReview(itemId: number, reviewData: ReviewData) {
   return server.post(`${endpoints.submitReview}${itemId}`, reviewData, { requiresAuth: true });
 }
@@ -408,10 +435,6 @@ export function deleteHomeTopRated(id: string) {
 }
 
 // Reviews
-export function getHomeReviews() {
-  return server.get(endpoints.getHomeReviews);
-}
-
 export function createHomeReview(data: any) {
   return server.post(endpoints.createHomeReview, data, { requiresAuth: true });
 }

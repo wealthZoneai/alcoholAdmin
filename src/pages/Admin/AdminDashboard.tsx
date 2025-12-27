@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import type { RootState } from "../../Redux/store";
 import AdminStatCard from "../../components/Admin/AdminStatCard";
-import { getAllOrders, getMainCategories } from "../../services/apiHelpers";
+import { getAllOrders, getMainCategories, getUserProfile, getAllItems, getDashboardOverview } from "../../services/apiHelpers";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -33,34 +33,46 @@ const AdminDashboard = () => {
         totalOrders: 0,
         totalRevenue: 0,
         pendingOrders: 0,
-        categories: 0
+        activeItems: 0,
+        inactiveItems: 0,
+        activeUsers: 0
     });
 
     useEffect(() => {
-        if (role !== "ADMIN") {
-            navigate("/admin-dashboard");
+        if (role && role !== "ADMIN") {
+            navigate("/");
             return;
         }
-        fetchStats();
+        if (role === "ADMIN") {
+            fetchStats();
+        }
     }, [role, navigate, userId]);
 
     const fetchStats = async () => {
         if (!userId) return;
         try {
-            const [ordersRes, catsRes] = await Promise.all([
+            const [ordersRes, _catsRes, itemsRes, overviewRes] = await Promise.all([
                 getAllOrders(userId),
-                getMainCategories()
+                getMainCategories(),
+                getAllItems(0, 1000), // Fetch a large number to count active/inactive correctly
+                getDashboardOverview()
             ]);
 
+            const overview = overviewRes.data || {};
+            const items = itemsRes.data?.content || itemsRes.data || [];
+            const activeItems = items.filter((i: any) => (i.itemStatus === "ACTIVE" || (i.itemStatus === undefined && i.isActive !== false))).length;
+            const inactiveItems = items.length - activeItems;
+
             const orders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
-            const totalRevenue = orders.reduce((sum: number, order: any) => sum + (order.totalAmount || 0), 0);
             const pendingOrders = orders.filter((order: any) => order.status === 'PLACED').length;
 
             setStats({
-                totalOrders: orders.length,
-                totalRevenue,
+                totalOrders: overview.totalOrders || orders.length,
+                totalRevenue: overview.totalRevenue || 0,
                 pendingOrders,
-                categories: Array.isArray(catsRes.data) ? catsRes.data.length : 0
+                activeItems,
+                inactiveItems,
+                activeUsers: overview.activeUsers || 0
             });
 
         } catch (error) {
@@ -208,7 +220,7 @@ const AdminDashboard = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8"
                 >
                     <AdminStatCard
                         title="Total Revenue"
@@ -230,14 +242,21 @@ const AdminDashboard = () => {
                     />
                     <AdminStatCard
                         title="Active Items"
-                        value={stats.categories * 12} // Mock multiplier for demo
+                        value={stats.activeItems}
                         icon={<Package size={24} className="text-white" />}
-                        color="bg-gradient-to-br from-purple-500 to-purple-600 text-white"
+                        color="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white"
                         delay={0.2}
                     />
                     <AdminStatCard
+                        title="Inactive Items"
+                        value={stats.inactiveItems}
+                        icon={<Package size={24} className="text-white" />}
+                        color="bg-gradient-to-br from-gray-500 to-gray-600 text-white"
+                        delay={0.25}
+                    />
+                    <AdminStatCard
                         title="Active Users"
-                        value="1,240"
+                        value={stats.activeUsers || 0}
                         icon={<Users size={24} className="text-white" />}
                         color="bg-gradient-to-br from-orange-500 to-orange-600 text-white"
                         trend="up"

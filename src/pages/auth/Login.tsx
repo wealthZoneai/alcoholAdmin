@@ -46,15 +46,24 @@ const Login: React.FC = () => {
 
     loginUser({ email, password })
       .then((response) => {
-        if (response.data && response.data.token) {
-          localStorage.setItem("token", response.data.token);
+        console.log("LOGIN RESPONSE:", response);
+        console.log("LOGIN DATA:", response.data);
+        // Check for 'accessToken' first, then 'token'
+        const token = response.data?.accessToken || response.data?.token;
+
+        if (token) {
+          localStorage.setItem("token", token);
+          if (response.data.refreshToken) {
+            localStorage.setItem("refreshToken", response.data.refreshToken);
+          }
           localStorage.setItem("role", response.data.role);
-          localStorage.setItem("username", response.data.username);
+          localStorage.setItem("userName", response.data.username);
           localStorage.setItem("userId", response.data.id);
 
           dispatch(
             setUserData({
-              token: response.data.token,
+              token: token,
+              refreshToken: response.data.refreshToken,
               userName: response.data.username,
               role: response.data.role,
               userId: response.data.id,

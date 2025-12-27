@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, Grid3x3, List, Search } from "lucide-react";
 import { useSelector } from "react-redux";
 
-import { getAllItems, createItem, updateItem, deleteItem } from "../../../services/apiHelpers";
+import { getAllItems, createItem, updateItem, deleteItem, uploadBulkItems, updateItemStatus } from "../../../services/apiHelpers";
 import { toast } from "react-hot-toast";
 import type { RootState } from "../../../Redux/store";
 import CreateItemModal from "../../../components/CreateItemModal";
@@ -19,12 +19,14 @@ export interface GroceryProduct {
     description: string;
     isFavorite: boolean;
     imageUrl: string;
-    category: string;
+    category?: string;
     minValue: number;
     maxValue: number;
     unitType: string;
     stock: number;
     isActive?: boolean;
+    itemStatus?: string;
+    visibilityStatus?: string;
 }
 
 const AdminInventory: React.FC = () => {
@@ -107,16 +109,25 @@ const AdminInventory: React.FC = () => {
     };
 
     const handleToggleStatus = async (item: GroceryProduct) => {
-        const newStatus = !item.isActive;
-        const updatedItem = { ...item, isActive: newStatus };
+        const isCurrentlyActive = item.itemStatus === "ACTIVE" || (item.itemStatus === undefined && item.isActive !== false);
+        const newStatus = isCurrentlyActive ? "INACTIVE" : "ACTIVE";
+        const currentVisibility = (item.visibilityStatus as "VISIBLE" | "HIDDEN") || "VISIBLE";
+
+        // Optimistic Update
+        const updatedItem = {
+            ...item,
+            isActive: newStatus === "ACTIVE",
+            itemStatus: newStatus
+        };
         setItems(prev => prev.map(i => i.id === item.id ? updatedItem : i));
 
         try {
-            await updateItem(item.id.toString(), { ...item, status: newStatus });
-            toast.success(`Item marked as ${newStatus ? 'Active' : 'Inactive'}`);
+            await updateItemStatus(item.id.toString(), newStatus, currentVisibility);
+            toast.success(`Item marked as ${newStatus.toLowerCase()}`);
         } catch (error) {
             console.error("Error updating status:", error);
             toast.error("Failed to update status");
+            // Rollback
             setItems(prev => prev.map(i => i.id === item.id ? item : i));
         }
     };
@@ -146,18 +157,33 @@ const AdminInventory: React.FC = () => {
         }
     };
 
-    const handleSubmitBulkItem = async (_data: { excelFile: File; zipFile: File; }) => {
-        // Bulk upload usually needs a subCategory ID too.
-        toast.error("Please upload bulk items inside a specific Sub-Category page.");
+    const handleSubmitBulkItem = async (data: { excelFile: File; zipFile: File; subCategoryId?: string }) => {
+        if (!data.subCategoryId) {
+            toast.error("Sub-Category ID is missing for bulk upload.");
+            return;
+        }
+
+        try {
+            await uploadBulkItems(data.subCategoryId, data.excelFile, data.zipFile);
+            toast.success("Bulk Items uploaded successfully!");
+            // Refresh list
+            setCurrentPage(0);
+            fetchItems(0);
+            setItemModalOpen(false);
+        } catch (error: any) {
+            console.error("Error bulk uploading items:", error);
+            toast.error(error?.response?.data?.error || "Failed to upload bulk items");
+        }
     };
 
     const filteredItems = items.filter(i => {
         const matchesSearch = i.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const isCurrentlyActive = i.itemStatus === 'ACTIVE' || (i.itemStatus === undefined && i.isActive !== false);
         const matchesStatus = statusFilter === "ALL"
             ? true
             : statusFilter === "ACTIVE"
-                ? i.isActive
-                : i.isActive === false;
+                ? isCurrentlyActive
+                : !isCurrentlyActive;
 
         return matchesSearch && matchesStatus;
     });
@@ -298,9 +324,44 @@ const AdminInventory: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 <td className="p-4">
-                                                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-100">
-                                                        {item.category || "General"}
-                                                    </span>
+                                                    {(() => {
+                                                        const name = item.name?.toLowerCase() || "";
+                                                        const cat = (item.category || "").toLowerCase();
+
+                                                        // Derivation logic: check name if category is missing
+                                                        const isAlcohol = cat.includes("alcohol") ||
+                                                            name.includes("wine") ||
+                                                            name.includes("beer") ||
+                                                            name.includes("vodka") ||
+                                                            name.includes("whisky");
+
+                                                        const isGroceries = cat.includes("grocer") ||
+                                                            name.includes("potato") ||
+                                                            name.includes("cabbage") ||
+                                                            name.includes("carrot") ||
+                                                            name.includes("mango") ||
+                                                            name.includes("beetroot");
+
+                                                        if (isAlcohol) {
+                                                            return (
+                                                                <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-600 border border-purple-100">
+                                                                    Alcohol
+                                                                </span>
+                                                            );
+                                                        } else if (isGroceries) {
+                                                            return (
+                                                                <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-600 border border-green-100">
+                                                                    Groceries
+                                                                </span>
+                                                            );
+                                                        } else {
+                                                            return (
+                                                                <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-gray-100">
+                                                                    {item.category || "General"}
+                                                                </span>
+                                                            );
+                                                        }
+                                                    })()}
                                                 </td>
                                                 <td className="p-4">
                                                     <div className="font-bold text-gray-900">${item.price.toFixed(2)}</div>
@@ -316,12 +377,10 @@ const AdminInventory: React.FC = () => {
                                                 <td className="p-4">
                                                     <button
                                                         onClick={() => handleToggleStatus(item)}
-                                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${item.isActive ?? true ? 'bg-emerald-500' : 'bg-gray-200'
-                                                            }`}
+                                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${(item.itemStatus === 'ACTIVE' || (item.itemStatus === undefined && item.isActive !== false)) ? 'bg-emerald-500' : 'bg-gray-200'}`}
                                                     >
                                                         <span
-                                                            className={`${item.isActive ?? true ? 'translate-x-6' : 'translate-x-1'
-                                                                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200`}
+                                                            className={`${(item.itemStatus === 'ACTIVE' || (item.itemStatus === undefined && item.isActive !== false)) ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200`}
                                                         />
                                                     </button>
                                                 </td>
@@ -359,7 +418,7 @@ const AdminInventory: React.FC = () => {
                                         <SubItemCard
                                             id={product?.id}
                                             name={product?.name}
-                                            category={product?.category}
+                                            category={product?.category || "General"}
                                             price={product?.price}
                                             image={product?.imageUrl}
                                             discount={product?.discount}

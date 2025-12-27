@@ -91,9 +91,25 @@ export default function CreateItemModal({
     try {
       setLoadingCats(true);
       const response = await getMainCategories();
-      setMainCategories(Array.isArray(response.data) ? response.data : []);
+      let cats = Array.isArray(response.data) ? response.data : [];
+
+      // Ensure "Alcohol" and "Groceries" are always available as options
+      // This is a safety measure to avoid showing "General"
+      const required = ["Alcohol", "Groceries"];
+      required.forEach(req => {
+        if (!cats.find((c: any) => c.name.toLowerCase() === req.toLowerCase())) {
+          cats.unshift({ id: req.toLowerCase(), name: req });
+        }
+      });
+
+      setMainCategories(cats);
     } catch (error) {
       console.error("Failed to fetch main categories", error);
+      // Fallback
+      setMainCategories([
+        { id: "alcohol", name: "Alcohol" },
+        { id: "groceries", name: "Groceries" }
+      ]);
     } finally {
       setLoadingCats(false);
     }
@@ -197,6 +213,13 @@ export default function CreateItemModal({
 
   // Submit Bulk
   const handleBulkSubmit = () => {
+    let targetSubCatId = subCategoryId || localSubCatId;
+
+    if (!targetSubCatId) {
+      toast.error("Please select a Category and Sub-category");
+      return;
+    }
+
     if (!excelFile) {
       alert("Please upload an Excel file!");
       return;
@@ -210,6 +233,7 @@ export default function CreateItemModal({
     onBulkSubmit({
       excelFile,
       zipFile,
+      subCategoryId: targetSubCatId
     });
 
     onClose();
@@ -601,6 +625,41 @@ export default function CreateItemModal({
           {/* BULK UPLOAD MODE */}
           {activeTab === "bulk" && (
             <div className="space-y-6">
+              {!subCategoryId && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Main Category</label>
+                    <select
+                      value={localMainCatId}
+                      onChange={handleMainCatChange}
+                      disabled={loadingCats}
+                      className="w-full p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium text-zinc-800 dark:text-zinc-100 disabled:opacity-50"
+                      required
+                    >
+                      <option value="">{loadingCats ? "Loading..." : "Select Category"}</option>
+                      {mainCategories.map((cat: any) => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Sub Category</label>
+                    <select
+                      value={localSubCatId}
+                      onChange={(e) => setLocalSubCatId(e.target.value)}
+                      disabled={!localMainCatId || loadingCats}
+                      className="w-full p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium text-zinc-800 dark:text-zinc-100 disabled:opacity-50"
+                      required
+                    >
+                      <option value="">{loadingCats ? "Loading..." : "Select Sub-Category"}</option>
+                      {subCategories.map((sub: any) => (
+                        <option key={sub.id} value={sub.id}>{sub.displayName || sub.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
               {/* Upload Box */}
               <div
                 className="border-2 border-dashed border-indigo-400 dark:border-indigo-600 rounded-xl p-8 text-center cursor-pointer bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200"

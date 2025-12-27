@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Star, Quote, CheckCircle, ThumbsUp } from "lucide-react";
+import { Star, Quote, CheckCircle, ThumbsUp, MessageSquare, ThumbsDown } from "lucide-react";
 import { motion } from "framer-motion";
-import { getHomeReviews } from "../../services/apiHelpers";
+import { getReviewStats, getReviewsList } from "../../services/apiHelpers";
 
 interface Review {
   id: number;
@@ -13,6 +13,13 @@ interface Review {
   rating: number;
   verified: boolean;
   helpful: number;
+}
+
+interface ReviewStats {
+  totalReviews: number;
+  verifiedReviews: number;
+  averageRating: number;
+  negativeFeedback: number;
 }
 
 const defaultReviews: Review[] = [
@@ -53,19 +60,30 @@ const defaultReviews: Review[] = [
 
 const CustomerReviews: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>(defaultReviews);
+  const [stats, setStats] = useState<ReviewStats | null>(null);
 
   useEffect(() => {
-    const fetchReviews = async () => {
+    const fetchStatsAndReviews = async () => {
       try {
-        const response = await getHomeReviews();
-        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-          setReviews(response.data);
+        const [statsRes, listRes] = await Promise.all([
+          getReviewStats().catch(() => null),
+          getReviewsList().catch(() => null)
+        ]);
+
+        if (statsRes?.data) {
+          setStats(statsRes.data);
+        }
+
+        if (listRes?.data && Array.isArray(listRes.data)) {
+          setReviews(listRes.data);
+        } else if (listRes?.data?.content && Array.isArray(listRes.data.content)) {
+          setReviews(listRes.data.content);
         }
       } catch (error) {
-        console.error("Failed to load reviews:", error);
+        console.error("Unexpected error loading reviews:", error);
       }
     };
-    fetchReviews();
+    fetchStatsAndReviews();
   }, []);
 
   return (
@@ -95,6 +113,31 @@ const CustomerReviews: React.FC = () => {
             Real experiences from our valued customers
           </p>
         </motion.div>
+
+        {/* Stats Summary Area */}
+        {stats && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
+          >
+            {[
+              { label: "Total Reviews", value: stats.totalReviews, icon: MessageSquare, color: "from-blue-500 to-blue-600" },
+              { label: "Verified Reviews", value: stats.verifiedReviews, icon: CheckCircle, color: "from-emerald-500 to-emerald-600" },
+              { label: "Average Rating", value: `${stats.averageRating.toFixed(1)}/5.0`, icon: Star, color: "from-orange-500 to-orange-600" },
+              { label: "Negative Feedback", value: stats.negativeFeedback, icon: ThumbsDown, color: "from-rose-500 to-rose-600" },
+            ].map((stat, i) => (
+              <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all duration-300">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-lg shadow-gray-100 transform group-hover:scale-110 transition-transform`}>
+                  <stat.icon size={20} className="text-white" />
+                </div>
+                <div className="text-2xl font-extrabold text-gray-900 mb-1">{stat.value}</div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">{stat.label}</div>
+              </div>
+            ))}
+          </motion.div>
+        )}
 
         {/* Reviews Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

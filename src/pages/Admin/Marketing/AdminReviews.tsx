@@ -6,7 +6,7 @@ import ReviewStats from "./components/ReviewStats";
 import ReviewToolbar from "./components/ReviewToolbar";
 import ReviewTable from "./components/ReviewTable";
 import type { Review } from "./components/ReviewRow";
-import { getHomeReviews, deleteHomeReview } from "../../../services/apiHelpers";
+import { getReviewStats, getReviewsList, deleteHomeReview } from "../../../services/apiHelpers";
 
 const DUMMY_REVIEWS: Review[] = [
     {
@@ -63,6 +63,7 @@ const DUMMY_REVIEWS: Review[] = [
 
 const AdminReviews = () => {
     const [reviews, setReviews] = useState<Review[]>([]);
+    const [serverStats, setServerStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [activeRating, setActiveRating] = useState<number | "ALL">("ALL");
@@ -73,11 +74,20 @@ const AdminReviews = () => {
 
     const fetchReviews = async () => {
         try {
-            const response = await getHomeReviews();
-            if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-                setReviews(response.data);
+            const [statsRes, listRes] = await Promise.all([
+                getReviewStats().catch(() => null),
+                getReviewsList().catch(() => null)
+            ]);
+
+            if (statsRes?.data) {
+                setServerStats(statsRes.data);
+            }
+
+            if (listRes?.data && Array.isArray(listRes.data)) {
+                setReviews(listRes.data);
+            } else if (listRes?.data?.content && Array.isArray(listRes.data.content)) {
+                setReviews(listRes.data.content);
             } else {
-                // Fallback to dummy data if API returns empty
                 setReviews(DUMMY_REVIEWS);
             }
         } catch (error) {
@@ -106,6 +116,15 @@ const AdminReviews = () => {
     };
 
     const stats = useMemo(() => {
+        if (serverStats) {
+            return {
+                total: serverStats.totalReviews || 0,
+                averageRating: serverStats.averageRating || 0,
+                verified: serverStats.verifiedReviews || 0,
+                negative: serverStats.negativeFeedback || 0
+            };
+        }
+
         const total = reviews.length;
         const avg = total > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / total).toFixed(1) : 0;
         const verified = reviews.filter(r => r.verified).length;
@@ -117,7 +136,7 @@ const AdminReviews = () => {
             verified,
             negative
         };
-    }, [reviews]);
+    }, [reviews, serverStats]);
 
     const filteredReviews = useMemo(() => {
         return reviews.filter(r => {

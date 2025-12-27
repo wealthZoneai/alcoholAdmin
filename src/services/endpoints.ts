@@ -3,6 +3,13 @@ const endpoints = {
     register: 'api/Alcohols/auth/register/user',
     sendEmailOtp: 'api/auth/send-email-otp',
     verifyEmailOtp: "api/Alcohols/auth/verify/user",
+    refreshToken: 'api/Alcohols/auth/refreshToken',
+
+
+    // Dashboard Overview
+    getDashboardOverview: 'api/admin/overall-stats',
+
+
 
     // Dynamic Categories (Main categories like Groceries, Alcohol, Drinks)
     getCurrentOrder: 'api/profile/currentorder/',
@@ -36,6 +43,10 @@ const endpoints = {
     uploadBulkItems: 'api/items/upload-excel-zip',
     categoriesFilter: 'api/categories/filter?filterType=',
 
+    // itemstatus
+    updateItemStatus: 'api/items/{itemId}/status',
+
+
     // addToCart
     addToCart: 'Cart/addToCart',
     getAddToCart: 'Cart/getCartByUserId?userId=',
@@ -48,6 +59,7 @@ const endpoints = {
 
     // Reviews
     submitReview: 'api/reviews/addReview?itemId=',
+    getReviews: 'api/reviews/stats',
 
     // Ratings Status
     getRatingsStatus: 'api/profile/userstatus?userId=',
